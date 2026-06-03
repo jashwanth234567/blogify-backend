@@ -1,4 +1,6 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+if (!process.env.GEMINI_API_KEY) {
+  console.error('❌ GEMINI_API_KEY is missing! Ensure it is set in .env or Render env vars.');
+}
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -115,7 +117,15 @@ Return ONLY a valid JSON array of strings:
 // 4. Chat Assistant helper
 export const generateChatReply = async (message, history = []) => {
   try {
-    let context = "You are a premium AI writing assistant for Blogify SaaS. Help the user with blog ideas, SEO tags, writing, grammar, outline generation, or general queries. Keep replies formatted nicely using markdown.\n\n";
+    if (!process.env.GEMINI_API_KEY) {
+      console.error('❌ GEMINI_API_KEY is missing – cannot generate chat reply');
+      return null;
+    }
+      if (!process.env.GEMINI_API_KEY) {
+        console.error('❌ GEMINI_API_KEY is missing – cannot generate chat reply');
+        throw new Error('GEMINI_API_KEY is missing');
+      }
+      let context = "You are a premium AI writing assistant for Blogify SaaS. Help the user with blog ideas, SEO tags, writing, grammar, outline generation, or general queries. Keep replies formatted nicely using markdown.\n\n";
     if (history && history.length > 0) {
       history.forEach(h => {
         context += `${h.role === 'user' ? 'User' : 'Assistant'}: ${h.content || h.text}\n`;
@@ -126,7 +136,7 @@ export const generateChatReply = async (message, history = []) => {
     const result = await model.generateContent(context);
     return result.response.text().trim();
   } catch (error) {
-    console.log("Gemini Chat Error:", error);
-    return null;
+    console.error("Gemini Chat Error:", error);
+    throw error;
   }
 };
