@@ -1,0 +1,11 @@
+{
+  "name": "blogify-root",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "npm run install-all && npm run build-client",
+    "install-all": "cd client && npm install && cd ../server && npm install",
+    "build-client": "cd client && npm run build",
+    "start": "node server/server.js"
+  }
+}

@@ -1,7 +1,12 @@
-import "dotenv/config";
-import express from "express";
+import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, ".env") });
+import express from "express";
 import cors from "cors";
 import connectDB from "./configs/db.js";
 import blogRouter from "./routes/blogRoutes.js";
@@ -21,8 +26,6 @@ app.use(cors());
 app.use(express.json());
 
 // Serve React build static files (if they exist)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const clientBuildPath = path.resolve(__dirname, "..", "client", "dist");
 app.use(express.static(clientBuildPath));
 
