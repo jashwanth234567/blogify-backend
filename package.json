@@ -6,6 +6,7 @@
     "build": "npm run install-all && npm run build-client",
     "install-all": "cd client && npm install && cd ../server && npm install",
     "build-client": "cd client && npm run build",
-    "start": "node server/server.js"
+    "postinstall": "npm run install-all && npm run build-client",
+    "start": "npm run build && node server/server.js"
   }
 }
