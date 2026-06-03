@@ -1,0 +1,635 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+* {
+    font-family: "Inter", sans-serif;
+    box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+body {
+    font-weight: 400;
+    line-height: 1.8;
+    background: rgb(219, 218, 218);
+    background-attachment: fixed;
+    color: #0F172A;
+    min-height: 100vh;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+html.dark body,
+:where(.dark, .dark *) body {
+    background: linear-gradient(180deg, #0B0F1A 0%, #0F172A 100%) !important;
+    background-attachment: fixed;
+    color: #F8FAFC !important;
+}
+
+
+/* Custom scrollbar optimized for SaaS */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #E2E8F0;
+    border-radius: 999px;
+}
+:where(.dark, .dark *) ::-webkit-scrollbar-thumb {
+    background: #334155;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #CBD5E1;
+}
+:where(.dark, .dark *) ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* ─── Global Image Framing ─────────────────────────────────────────────── */
+img.blog-thumbnail,
+.blog-img-frame img {
+    border-radius: 24px;
+    border: 1px solid #E2E8F0;
+    object-fit: cover;
+}
+:where(.dark, .dark *) img.blog-thumbnail,
+:where(.dark, .dark *) .blog-img-frame img {
+    border-color: #334155;
+}
+
+/* Selection highlight */
+::selection {
+    background-color: rgba(124, 58, 237, 0.25);
+    color: #0F172A;
+}
+:where(.dark, .dark *) ::selection {
+    background-color: rgba(139, 92, 246, 0.4);
+    color: #FFFFFF;
+}
+
+@theme {
+    --color-primary: #7C3AED;
+    --color-accent-purple: #8B5CF6;
+    --color-accent-orange: #F97316;
+    --color-success-green: #10B981;
+
+    /* Re-defining shadows to enforce bold 4-side visible black shadows globally */
+    --shadow-sm: 0 0 6px 1px rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 0 12px 2px rgba(0, 0, 0, 0.18);
+    --shadow-lg: 0 0 18px 3px rgba(0, 0, 0, 0.22);
+    --shadow-xl: 0 0 26px 4px rgba(0, 0, 0, 0.28);
+    --shadow-2xl: 0 0 36px 6px rgba(0, 0, 0, 0.35);
+
+    --animate-float-slow: float 10s ease-in-out infinite;
+    --animate-shimmer: shimmer 2.5s linear infinite;
+    --animate-slide-up: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    --animate-scale-in: scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    --animate-fade-in: fade-in 0.4s ease forwards;
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-8px) scale(1.02); }
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% center; }
+        100% { background-position: 200% center; }
+    }
+
+    @keyframes slide-up {
+        from { opacity: 0; transform: translateY(24px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scale-in {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+}
+
+/* Premium SaaS & Glassmorphism Design Tokens */
+
+/* 1. Core Card / Visual Container */
+.bz-card {
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+    border-radius: 24px !important;
+    padding: 24px !important;
+    box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.03), 
+                0 10px 15px -3px rgba(15, 23, 42, 0.05), 
+                0 20px 25px -5px rgba(15, 23, 42, 0.06), 
+                0 0 1px 0 rgba(15, 23, 42, 0.1) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+:where(.dark, .dark *) .bz-card {
+    background-color: #111827 !important; /* slate-900 / gray-900 style */
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 
+                0 10px 15px -3px rgba(0, 0, 0, 0.3), 
+                0 20px 25px -5px rgba(0, 0, 0, 0.4), 
+                0 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Legacy Alias for saas-container */
+.saas-container {
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+    border-radius: 24px !important;
+    padding: 24px !important;
+    box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.03), 
+                0 10px 15px -3px rgba(15, 23, 42, 0.05), 
+                0 20px 25px -5px rgba(15, 23, 42, 0.06), 
+                0 0 1px 0 rgba(15, 23, 42, 0.1) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+:where(.dark, .dark *) .saas-container {
+    background-color: #111827 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 
+                0 10px 15px -3px rgba(0, 0, 0, 0.3), 
+                0 20px 25px -5px rgba(0, 0, 0, 0.4), 
+                0 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 2. Interactive Card - Lift and subtle purple border/glow on hover */
+.bz-card-interactive {
+    cursor: pointer;
+}
+.bz-card-interactive:hover {
+    transform: translateY(-6px) !important;
+    border-color: rgba(124, 58, 237, 0.4) !important;
+    box-shadow: 0 10px 20px -5px rgba(124, 58, 237, 0.08),
+                0 20px 40px -10px rgba(124, 58, 237, 0.12),
+                0 0 2px 0 rgba(124, 58, 237, 0.15) !important;
+}
+:where(.dark, .dark *) .bz-card-interactive:hover {
+    border-color: rgba(139, 92, 246, 0.5) !important;
+    box-shadow: 0 10px 20px -5px rgba(139, 92, 246, 0.12),
+                0 20px 40px -10px rgba(139, 92, 246, 0.2),
+                0 0 2px 0 rgba(139, 92, 246, 0.25) !important;
+}
+
+/* Legacy Alias for saas-card */
+.saas-card {
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+    border-radius: 24px !important;
+    padding: 24px !important;
+    box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.03), 
+                0 10px 15px -3px rgba(15, 23, 42, 0.05), 
+                0 20px 25px -5px rgba(15, 23, 42, 0.06), 
+                0 0 1px 0 rgba(15, 23, 42, 0.1) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.saas-card:hover {
+    transform: translateY(-6px) !important;
+    border-color: rgba(124, 58, 237, 0.4) !important;
+    box-shadow: 0 10px 20px -5px rgba(124, 58, 237, 0.08),
+                0 20px 40px -10px rgba(124, 58, 237, 0.12),
+                0 0 2px 0 rgba(124, 58, 237, 0.15) !important;
+}
+:where(.dark, .dark *) .saas-card {
+    background-color: #111827 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 
+                0 10px 15px -3px rgba(0, 0, 0, 0.3), 
+                0 20px 25px -5px rgba(0, 0, 0, 0.4), 
+                0 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+:where(.dark, .dark *) .saas-card:hover {
+    border-color: rgba(139, 92, 246, 0.5) !important;
+    box-shadow: 0 10px 20px -5px rgba(139, 92, 246, 0.12),
+                0 20px 40px -10px rgba(139, 92, 246, 0.2),
+                0 0 2px 0 rgba(139, 92, 246, 0.25) !important;
+}
+
+/* 3. Stat Cards with Accent Strip */
+.bz-stat {
+    position: relative;
+    overflow: hidden;
+    padding: 32px !important;
+}
+.bz-stat::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #7C3AED, #8B5CF6);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.bz-stat:hover::after {
+    opacity: 1;
+}
+
+/* 4. Glassmorphism Card styling */
+.glass-card {
+    background: rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.04) !important;
+}
+:where(.dark, .dark *) .glass-card {
+    background: rgba(17, 24, 39, 0.75) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+/* 5. Inputs & Textareas */
+.bz-input {
+    min-height: 52px !important;
+    background-color: #FFFFFF !important;
+    border: 2px solid #E2E8F0 !important;
+    border-radius: 16px !important;
+    padding: 12px 16px !important;
+    color: #0F172A !important;
+    outline: none !important;
+    font-size: 0.95rem !important;
+    transition: all 0.2s ease !important;
+    width: 100%;
+}
+.bz-input:focus {
+    border-color: #7C3AED !important;
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12) !important;
+}
+:where(.dark, .dark *) .bz-input {
+    background-color: #1F2937 !important; /* gray-800 */
+    border: 2px solid #374151 !important; /* gray-700 */
+    color: #F9FAFB !important;
+}
+:where(.dark, .dark *) .bz-input:focus {
+    border-color: #8B5CF6 !important;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.25) !important;
+}
+
+/* Legacy Alias for saas-input */
+.saas-input {
+    min-height: 52px !important;
+    background-color: #FFFFFF !important;
+    border: 2px solid #E2E8F0 !important;
+    border-radius: 16px !important;
+    padding: 12px 16px !important;
+    color: #0F172A !important;
+    outline: none !important;
+    transition: all 0.2s ease !important;
+    width: 100%;
+}
+.saas-input:focus {
+    border-color: #7C3AED !important;
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12) !important;
+}
+:where(.dark, .dark *) .saas-input {
+    background-color: #1F2937 !important;
+    border: 2px solid #374151 !important;
+    color: #F9FAFB !important;
+}
+:where(.dark, .dark *) .saas-input:focus {
+    border-color: #8B5CF6 !important;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.25) !important;
+}
+
+select.bz-input, select.saas-input {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px;
+    padding-right: 48px !important;
+}
+:where(.dark, .dark *) select.bz-input, :where(.dark, .dark *) select.saas-input {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394A3B8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+/* 6. Button System */
+.bz-btn-primary {
+    height: 48px !important;
+    background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%) !important;
+    border-radius: 14px !important;
+    border: none !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+    padding: 0 24px !important;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2) !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.bz-btn-primary:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.3) !important;
+}
+.bz-btn-primary:active {
+    transform: translateY(0) !important;
+}
+.bz-btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Legacy Alias for saas-button */
+.saas-button {
+    height: 48px !important;
+    background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%) !important;
+    border-radius: 14px !important;
+    border: none !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+    padding: 0 24px !important;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2) !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.saas-button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.3) !important;
+}
+.saas-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+.bz-btn-secondary {
+    height: 48px !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 14px !important;
+    color: #334155 !important;
+    font-weight: 600 !important;
+    padding: 0 24px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.bz-btn-secondary:hover {
+    background-color: #F8FAFC !important;
+    border-color: #CBD5E1 !important;
+    color: #0F172A !important;
+}
+:where(.dark, .dark *) .bz-btn-secondary {
+    background-color: #1F2937 !important;
+    border-color: #374151 !important;
+    color: #D1D5DB !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+:where(.dark, .dark *) .bz-btn-secondary:hover {
+    background-color: #111827 !important;
+    border-color: #4B5563 !important;
+    color: #FFFFFF !important;
+}
+
+/* 7. Premium Table & Wrapper */
+.bz-table-wrap {
+    border-radius: 20px !important;
+    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.03) !important;
+}
+:where(.dark, .dark *) .bz-table-wrap {
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+.bz-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+.bz-table thead {
+    background-color: #F8FAFC;
+}
+.bz-table th {
+    padding: 14px 20px;
+    font-weight: 600;
+    color: #64748B;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+.bz-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    color: #334155;
+    font-size: 0.875rem;
+}
+.bz-table tr:hover td {
+    background-color: #F8FAFC;
+}
+:where(.dark, .dark *) .bz-table thead {
+    background-color: #111827;
+}
+:where(.dark, .dark *) .bz-table th {
+    color: #94A3B8;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+:where(.dark, .dark *) .bz-table td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: #CBD5E1;
+}
+:where(.dark, .dark *) .bz-table tr:hover td {
+    background-color: #1F2937;
+}
+
+/* Legacy Alias for saas-table */
+.saas-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+.saas-table thead {
+    background-color: #F8FAFC;
+}
+.saas-table th {
+    padding: 14px 20px;
+    font-weight: 600;
+    color: #64748B;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+.saas-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    color: #334155;
+    font-size: 0.875rem;
+}
+.saas-table tr:hover td {
+    background-color: #F8FAFC;
+}
+:where(.dark, .dark *) .saas-table thead {
+    background-color: #111827;
+}
+:where(.dark, .dark *) .saas-table th {
+    color: #94A3B8;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+:where(.dark, .dark *) .saas-table td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: #CBD5E1;
+}
+:where(.dark, .dark *) .saas-table tr:hover td {
+    background-color: #1F2937;
+}
+
+/* Reading container */
+.reading-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #FFFFFF;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 32px;
+    padding: 48px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04) !important;
+}
+:where(.dark, .dark *) .reading-container {
+    background-color: #111827;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Rich article styling (Quill outputs) */
+.reset-tw * {
+    all: revert !important;
+    font-family: "Inter", sans-serif !important;
+    color: #334155 !important;
+    line-height: 1.8 !important;
+}
+.reset-tw strong {
+    font-weight: 700 !important;
+    color: #0F172A !important;
+}
+.reset-tw h1, .reset-tw h2, .reset-tw h3,
+.reset-tw h4, .reset-tw h5, .reset-tw h6 {
+    font-weight: 800 !important;
+    color: #0F172A !important;
+    margin-top: 2rem !important;
+    margin-bottom: 1rem !important;
+    letter-spacing: -0.02em !important;
+}
+.reset-tw p {
+    margin-bottom: 1.5rem !important;
+}
+.reset-tw a {
+    color: #7C3AED !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+}
+.reset-tw a:hover {
+    text-decoration: underline !important;
+}
+.reset-tw blockquote {
+    border-left: 4px solid #7C3AED !important;
+    background: #F8FAFC !important;
+    padding: 1.5rem 2rem !important;
+    border-radius: 0 16px 16px 0 !important;
+    margin: 2rem 0 !important;
+    font-style: italic;
+}
+.reset-tw code {
+    background: #F1F5F9 !important;
+    color: #0F172A !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 8px !important;
+    font-size: 0.875em !important;
+    font-weight: 500 !important;
+}
+.reset-tw pre {
+    background: #0F172A !important;
+    color: #F8FAFC !important;
+    padding: 1.5rem !important;
+    border-radius: 16px !important;
+    overflow-x: auto !important;
+    margin: 2rem 0 !important;
+}
+.reset-tw pre code {
+    background: transparent !important;
+    color: inherit !important;
+    padding: 0 !important;
+}
+
+/* Dark Mode Overrides for Rich text output */
+:where(.dark, .dark *) .reset-tw * {
+    color: #CBD5E1 !important;
+}
+:where(.dark, .dark *) .reset-tw strong {
+    color: #FFFFFF !important;
+}
+:where(.dark, .dark *) .reset-tw h1,
+:where(.dark, .dark *) .reset-tw h2,
+:where(.dark, .dark *) .reset-tw h3,
+:where(.dark, .dark *) .reset-tw h4,
+:where(.dark, .dark *) .reset-tw h5,
+:where(.dark, .dark *) .reset-tw h6 {
+    color: #FFFFFF !important;
+}
+:where(.dark, .dark *) .reset-tw blockquote {
+    background: #111827 !important;
+    border-color: #8B5CF6 !important;
+}
+:where(.dark, .dark *) .reset-tw code {
+    background: #334155 !important;
+    color: #FFFFFF !important;
+}
+
+/* Quill overrides */
+.ql-toolbar {
+    background: #F8FAFC !important;
+    border: 2px solid #E2E8F0 !important;
+    border-bottom: none !important;
+    border-radius: 18px 18px 0 0 !important;
+}
+.ql-container {
+    border: 2px solid #E2E8F0 !important;
+    border-radius: 0 0 18px 18px !important;
+    font-size: 1rem !important;
+    font-family: "Inter", sans-serif !important;
+}
+.ql-editor {
+    min-height: 200px;
+    padding: 24px !important;
+}
+:where(.dark, .dark *) .ql-toolbar {
+    background: #1F2937 !important;
+    border-color: #374151 !important;
+}
+:where(.dark, .dark *) .ql-container {
+    border-color: #374151 !important;
+}
+:where(.dark, .dark *) .ql-editor {
+    background-color: #111827 !important;
+    color: #F8FAFC !important;
+}

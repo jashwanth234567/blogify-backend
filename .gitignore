@@ -1,0 +1,5 @@
+node_modules
+# Environment secrets
+server/.env
+client/.env
+client/.env.production

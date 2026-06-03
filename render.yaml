@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: blogify
+    env: node
+    buildCommand: |
+      # Install and build client
+      cd client && npm install && npm run build
+      # Install server dependencies
+      cd ../server && npm install
+    startCommand: |
+      cd server && node server.js
+    # Environment variables – add them in the Render UI
+    envVars:
+      - key: JWT_SECRET
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_SECURE
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: CLIENT_URL
+        sync: false
