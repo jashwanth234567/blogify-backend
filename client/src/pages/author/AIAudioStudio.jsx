@@ -1,25 +1,70 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import { Capacitor } from '@capacitor/core';
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
 
 const AIAudioStudio = () => {
     const [text, setText] = useState("");
     const [rate, setRate] = useState(1);
     const [status, setStatus] = useState("Idle");
 
-    const playSpeech = () => {
+    const playSpeech = async () => {
         if (!text.trim()) return toast.error("Please enter some text to speak");
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = rate;
-        utterance.onend = () => setStatus("Idle");
-        utterance.onerror = () => setStatus("Idle");
-        window.speechSynthesis.speak(utterance);
+        
         setStatus("Speaking");
+
+        if (Capacitor.isNativePlatform()) {
+            try {
+                await TextToSpeech.stop();
+                await TextToSpeech.speak({
+                    text: text,
+                    lang: 'en-US',
+                    rate: rate,
+                    pitch: 1.0,
+                });
+                setStatus("Idle");
+            } catch (error) {
+                console.error("Capacitor TTS Error:", error);
+                setStatus("Idle");
+            }
+        } else {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = rate;
+            utterance.onend = () => setStatus("Idle");
+            utterance.onerror = () => setStatus("Idle");
+            window.speechSynthesis.speak(utterance);
+        }
     };
 
-    const pauseSpeech = () => { window.speechSynthesis.pause(); setStatus("Paused"); };
-    const resumeSpeech = () => { window.speechSynthesis.resume(); setStatus("Speaking"); };
-    const stopSpeech = () => { window.speechSynthesis.cancel(); setStatus("Idle"); };
+    const pauseSpeech = () => { 
+        setStatus("Paused");
+        if (!Capacitor.isNativePlatform()) window.speechSynthesis.pause(); 
+    };
+    
+    const resumeSpeech = () => { 
+        setStatus("Speaking");
+        if (!Capacitor.isNativePlatform()) window.speechSynthesis.resume(); 
+    };
+    
+    const stopSpeech = async () => { 
+        setStatus("Idle");
+        if (Capacitor.isNativePlatform()) {
+            await TextToSpeech.stop().catch(console.error);
+        } else {
+            window.speechSynthesis.cancel(); 
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            if (Capacitor.isNativePlatform()) {
+                TextToSpeech.stop().catch(console.error);
+            } else {
+                window.speechSynthesis.cancel();
+            }
+        };
+    }, []);
 
     return (
         <div className="flex-1 bg-transparent dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 md:p-10 overflow-y-auto font-sans">

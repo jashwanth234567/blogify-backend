@@ -8,6 +8,8 @@ import Loader from "../components/Loader";
 import BlogCard from "../components/BlogCard";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
+import { Capacitor } from '@capacitor/core';
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
 
 const Blog = () => {
     const { id } = useParams();
@@ -71,34 +73,54 @@ const Blog = () => {
         return textSource.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
     };
 
-    const playSpeech = () => {
+    const playSpeech = async () => {
         const text = getCleanText();
         if (!text) return;
-        window.speechSynthesis.cancel();
 
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = playbackRate;
-        utterance.onend = () => setSpeechStatus("Idle");
-        utterance.onerror = () => setSpeechStatus("Idle");
-
-        window.speechSynthesis.speak(utterance);
         setSpeechStatus("Speaking");
         setShowAudioPanel(true);
+
+        if (Capacitor.isNativePlatform()) {
+            try {
+                await TextToSpeech.stop();
+                await TextToSpeech.speak({
+                    text: text,
+                    lang: 'en-US',
+                    rate: playbackRate,
+                    pitch: 1.0,
+                });
+                setSpeechStatus("Idle");
+            } catch (error) {
+                console.error("Capacitor TTS Error:", error);
+                setSpeechStatus("Idle");
+            }
+        } else {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = playbackRate;
+            utterance.onend = () => setSpeechStatus("Idle");
+            utterance.onerror = () => setSpeechStatus("Idle");
+            window.speechSynthesis.speak(utterance);
+        }
     };
 
     const pauseSpeech = () => {
-        window.speechSynthesis.pause();
         setSpeechStatus("Paused");
+        if (!Capacitor.isNativePlatform()) window.speechSynthesis.pause();
     };
 
     const resumeSpeech = () => {
-        window.speechSynthesis.resume();
         setSpeechStatus("Speaking");
+        if (!Capacitor.isNativePlatform()) window.speechSynthesis.resume();
     };
 
-    const stopSpeech = () => {
-        window.speechSynthesis.cancel();
+    const stopSpeech = async () => {
         setSpeechStatus("Idle");
+        if (Capacitor.isNativePlatform()) {
+            await TextToSpeech.stop().catch(console.error);
+        } else {
+            window.speechSynthesis.cancel();
+        }
     };
 
     const handleSpeedChange = (rate) => {
@@ -245,7 +267,11 @@ const Blog = () => {
         window.addEventListener("scroll", handleScroll);
         return () => {
             window.removeEventListener("scroll", handleScroll);
-            window.speechSynthesis.cancel();
+            if (Capacitor.isNativePlatform()) {
+                TextToSpeech.stop().catch(console.error);
+            } else {
+                window.speechSynthesis.cancel();
+            }
         };
     }, [id]);
 

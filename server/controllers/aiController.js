@@ -82,9 +82,11 @@ export const translateContent = async (req, res) => {
             return res.json({ success: false, message: "Target language is required" });
         }
 
-        const translatedTitle = title ? await translateHtmlContent(title, targetLanguage) : "";
-        const translatedSubTitle = subTitle ? await translateHtmlContent(subTitle, targetLanguage) : "";
-        const translatedDesc = description ? await translateHtmlContent(description, targetLanguage) : "";
+        const [translatedTitle, translatedSubTitle, translatedDesc] = await Promise.all([
+            title ? translateHtmlContent(title, targetLanguage) : Promise.resolve(""),
+            subTitle ? translateHtmlContent(subTitle, targetLanguage) : Promise.resolve(""),
+            description ? translateHtmlContent(description, targetLanguage) : Promise.resolve("")
+        ]);
 
         // If any of the requested text translations failed (returned null or empty), return success: false
         if ((title && !translatedTitle) || (subTitle && !translatedSubTitle) || (description && !translatedDesc)) {
