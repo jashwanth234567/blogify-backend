@@ -1,6 +1,4 @@
-import * as GeminiAI from "@google/generative-ai";
-const { GoogleGenerativeAI } = GeminiAI;
-
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 if (!process.env.GEMINI_API_KEY) {
   console.error('❌ GEMINI_API_KEY is missing! Ensure it is set in .env or Render env vars.');
@@ -9,7 +7,7 @@ if (!process.env.GEMINI_API_KEY) {
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const model = genAI.getGenerativeModel({
-  model: "gemini-3.5-flash",
+  model: "gemini-1.5-flash",
 });
 
 export const generateBlogContent = async (title) => {
