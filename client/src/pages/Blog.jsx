@@ -259,7 +259,7 @@ const Blog = () => {
         .slice(0, 3);
 
     return data ? (
-        <div className="relative overflow-hidden min-h-screen bg-[rgb(219,218,218)] dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300">
+        <div className="relative overflow-hidden min-h-screen bg-transparent dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300">
             {/* Progress bar */}
             <div className="fixed top-0 left-0 w-full h-1 bg-slate-200 dark:bg-slate-800 z-50">
                 <div 
@@ -308,14 +308,14 @@ const Blog = () => {
                                 setShowAudioPanel(true);
                             }
                         }}
-                        className="inline-flex items-center gap-2 py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white hover:bg-[rgb(219,218,218)] dark:bg-slate-900 text-violet-600 dark:text-violet-400 font-bold transition-all duration-200 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+                        className="inline-flex items-center gap-2 py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white hover:bg-slate-100 dark:bg-slate-900 text-violet-600 dark:text-violet-400 font-bold transition-all duration-200 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
                     >
                         🎙️ Listen to Blog
                     </button>
 
                     <button
                         onClick={handleGenerateSummary}
-                        className="inline-flex items-center gap-2 py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white hover:bg-[rgb(219,218,218)] dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 font-bold transition-all duration-200 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+                        className="inline-flex items-center gap-2 py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white hover:bg-slate-100 dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 font-bold transition-all duration-200 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
                     >
                         ✨ AI Summary
                     </button>
@@ -323,7 +323,7 @@ const Blog = () => {
                     <select
                         value={currentLanguage}
                         onChange={(e) => handleLanguageChange(e.target.value)}
-                        className="inline-flex items-center py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold cursor-pointer hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-800 focus:outline-none transition-all duration-300 shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+                        className="inline-flex items-center py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none transition-all duration-300 shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
                     >
                         <option value="Original">🌐 Original</option>
                         <option value="Hindi">Hindi (हिंदी)</option>

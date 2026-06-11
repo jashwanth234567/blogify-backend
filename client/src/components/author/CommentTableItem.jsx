@@ -40,7 +40,7 @@ const CommentTableItem = ({ comment, fetchComments }) => {
     };
 
     return (
-        <tr className="border-y border-transparent dark:border-slate-800/60 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-800/30 transition-colors">
+        <tr className="border-y border-transparent dark:border-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-colors">
             <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
                 <div className="space-y-1">
                     <div>
@@ -51,7 +51,7 @@ const CommentTableItem = ({ comment, fetchComments }) => {
                         <span className="text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Name:</span>{" "}
                         <span className="font-semibold text-slate-700 dark:text-slate-300">{comment.name}</span>
                     </div>
-                    <div className="bg-[rgb(219,218,218)] dark:bg-slate-900 border border-transparent dark:border-slate-800 p-2.5 rounded-xl text-sm text-slate-600 dark:text-slate-350 mt-2 max-w-xl shadow-lg">
+                    <div className="bg-transparent dark:bg-slate-900 border border-transparent dark:border-slate-800 p-2.5 rounded-xl text-sm text-slate-600 dark:text-slate-350 mt-2 max-w-xl shadow-lg">
                         {comment.content}
                     </div>
                 </div>

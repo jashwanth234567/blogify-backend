@@ -1,11 +1,15 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
 if (!process.env.GEMINI_API_KEY) {
   console.error('❌ GEMINI_API_KEY is missing! Ensure it is set in .env or Render env vars.');
 }
 
+// Initialize the SDK
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+// Use the correct 1.5-flash model
 const model = genAI.getGenerativeModel({
-  model: "gemini-3.5-flash",
+  model: "gemini-1.5-flash",
 });
 
 export const generateBlogContent = async (title) => {
@@ -20,112 +24,62 @@ Requirements:
 - Generate a detailed blog post in HTML format.
 
 Return ONLY valid JSON:
-
 {
   "subTitle": "Blog subtitle",
   "description": "<h2>Introduction</h2><p>...</p>"
 }
 `;
-
     const result = await model.generateContent(prompt);
-
     const response = result.response.text();
-
-    const cleanedResponse = response
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
+    const cleanedResponse = response.replace(/```json/g, "").replace(/```/g, "").trim();
     return JSON.parse(cleanedResponse);
   } catch (error) {
-    console.log("Gemini Error:", error);
+    console.error("Gemini Error:", error);
     return null;
   }
 };
 
-// 1. Generate Blog Summary helper
 export const generateSummaryContent = async (text) => {
   try {
-    const prompt = `
-Provide a brief, concise summary (around 3-4 sentences) of the following article content.
-Keep it engaging and professional.
-
-Article content:
-${text}
-
-Return ONLY the plain text summary without any markdown code blocks or HTML.
-`;
-
+    const prompt = `Provide a brief, concise summary (around 3-4 sentences) of the following article content. Keep it engaging and professional.\n\nArticle content:\n${text}\n\nReturn ONLY the plain text summary without any markdown code blocks or HTML.`;
     const result = await model.generateContent(prompt);
     return result.response.text().trim();
   } catch (error) {
-    console.log("Gemini Summarize Error:", error);
+    console.error("Gemini Summarize Error:", error);
     return null;
   }
 };
 
-// 2. Translate HTML helper
 export const translateHtmlContent = async (text, targetLanguage) => {
   try {
-    const prompt = `
-Translate the following HTML/text content into ${targetLanguage}.
-You MUST preserve all HTML tags, inline tags, attributes, and formatting structure exactly as they are. Translate only the human-readable text content inside tags.
-
-Content:
-${text}
-
-Return ONLY the translated content. Do NOT wrap in markdown code blocks like \`\`\`html or \`\`\`.
-`;
-
+    const prompt = `Translate the following HTML/text content into ${targetLanguage}. You MUST preserve all HTML tags, inline tags, attributes, and formatting structure exactly as they are. Translate only the human-readable text content inside tags.\n\nContent:\n${text}\n\nReturn ONLY the translated content. Do NOT wrap in markdown code blocks.`;
     const result = await model.generateContent(prompt);
-    return result.response.text()
-      .replace(/```html/g, "")
-      .replace(/```/g, "")
-      .trim();
+    return result.response.text().replace(/```html/g, "").replace(/```/g, "").trim();
   } catch (error) {
-    console.log("Gemini Translate Error:", error);
+    console.error("Gemini Translate Error:", error);
     return null;
   }
 };
 
-// 3. Suggest SEO Titles helper
 export const suggestSeoTitles = async (topic) => {
   try {
-    const prompt = `
-Suggest 3 catchy and SEO-friendly titles for a blog post about: "${topic}".
-Return ONLY a valid JSON array of strings:
-[
-  "Title option 1",
-  "Title option 2",
-  "Title option 3"
-]
-`;
-
+    const prompt = `Suggest 3 catchy and SEO-friendly titles for a blog post about: "${topic}". Return ONLY a valid JSON array of strings:\n[\n  "Title 1",\n  "Title 2"\n]`;
     const result = await model.generateContent(prompt);
-    const response = result.response.text()
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
+    const response = result.response.text().replace(/```json/g, "").replace(/```/g, "").trim();
     return JSON.parse(response);
   } catch (error) {
-    console.log("Gemini Suggest Titles Error:", error);
+    console.error("Gemini Suggest Titles Error:", error);
     return null;
   }
 };
 
-// 4. Chat Assistant helper
 export const generateChatReply = async (message, history = []) => {
   try {
     if (!process.env.GEMINI_API_KEY) {
       console.error('❌ GEMINI_API_KEY is missing – cannot generate chat reply');
-      return null;
+      throw new Error('GEMINI_API_KEY is missing');
     }
-      if (!process.env.GEMINI_API_KEY) {
-        console.error('❌ GEMINI_API_KEY is missing – cannot generate chat reply');
-        throw new Error('GEMINI_API_KEY is missing');
-      }
-      let context = "You are a premium AI writing assistant for Blogify SaaS. Help the user with blog ideas, SEO tags, writing, grammar, outline generation, or general queries. Keep replies formatted nicely using markdown.\n\n";
+    let context = "You are a premium AI writing assistant for Blogify SaaS. Help the user with blog ideas, SEO tags, writing, grammar, outline generation, or general queries. Keep replies formatted nicely using markdown.\n\n";
     if (history && history.length > 0) {
       history.forEach(h => {
         context += `${h.role === 'user' ? 'User' : 'Assistant'}: ${h.content || h.text}\n`;

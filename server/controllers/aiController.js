@@ -147,33 +147,35 @@ export const suggestTitles = async (req, res) => {
 // AI Chat Assistant
 // POST /api/ai/chat
 export const chatAssistant = async (req, res) => {
-    try {
-        const { message, history } = req.body;
-        const userId = req.userId;
+  try {
+    const { message, history } = req.body;
+    const userId = req.userId;
 
-        if (!message) {
-            return res.json({ success: false, message: "Message is required" });
-        }
-
-        const reply = await generateChatReply(message, history);
-
-        if (!reply) {
-            return res.json({ success: false, message: "Failed to generate chat reply" });
-        }
-
-        // Save to AI History
-        if (userId) {
-            await AiHistory.create({
-                user: userId,
-                prompt: message,
-                generatedContent: reply,
-                type: "summary",
-            });
-        }
-
-        res.json({ success: true, reply });
-    } catch (error) {
-        console.error("Chat controller error:", error);
-        res.json({ success: false, message: error.message });
+    if (!message) {
+      return res.json({ success: false, message: "Message is required" });
     }
+
+    const reply = await generateChatReply(message, history);
+    if (!reply) {
+      const missingKeyMsg = !process.env.GEMINI_API_KEY
+        ? "GEMINI_API_KEY is missing. Configure it in .env or Render env vars."
+        : "Failed to generate chat reply.";
+      return res.json({ success: false, message: missingKeyMsg });
+    }
+
+    // Save to AI History
+    if (userId) {
+      await AiHistory.create({
+        user: userId,
+        prompt: message,
+        generatedContent: reply,
+        type: "chat",
+      });
+    }
+
+    return res.json({ success: true, reply });
+  } catch (error) {
+    console.error("Chat controller error:", error);
+    return res.json({ success: false, message: error.message });
+  }
 };

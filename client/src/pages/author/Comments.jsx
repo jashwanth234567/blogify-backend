@@ -23,7 +23,7 @@ const Comments = () => {
     }, []);
 
     return (
-        <div className="flex-1 pt-5 px-5 sm:pt-12 sm:pl-16 bg-[rgb(219,218,218)] dark:bg-slate-950 overflow-scroll">
+        <div className="flex-1 pt-5 px-5 sm:pt-12 sm:pl-16 bg-transparent dark:bg-slate-950 overflow-scroll">
             <div className="flex justify-between items-center max-w-3xl">
                 <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">Comments</h1>
                 <div className="flex gap-3">
@@ -31,8 +31,8 @@ const Comments = () => {
                         onClick={() => setFilter("Approved")}
                         className={`px-4 py-1.5 rounded-full text-xs font-semibold cursor-pointer transition-all duration-300 ${
                             filter === "Approved"
-                                ? "text-white bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20"
-                                : "text-slate-650 dark:text-slate-300 bg-white dark:bg-slate-900 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-850 border border-transparent dark:border-slate-800"
+                                ? "text-white bg-gradient-to-r from-violet-600 to-indigo-600 shadow-sm shadow-violet-500/20"
+                                : "text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"
                         }`}
                     >
                         Approved
@@ -42,17 +42,17 @@ const Comments = () => {
                         onClick={() => setFilter("Not Approved")}
                         className={`px-4 py-1.5 rounded-full text-xs font-semibold cursor-pointer transition-all duration-300 ${
                             filter === "Not Approved"
-                                ? "text-white bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20"
-                                : "text-slate-655 dark:text-slate-300 bg-white dark:bg-slate-900 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-850 border border-transparent dark:border-slate-800"
+                                ? "text-white bg-gradient-to-r from-violet-600 to-indigo-600 shadow-sm shadow-violet-500/20"
+                                : "text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"
                         }`}
                     >
                         Not Approved
                     </button>
                 </div>
             </div>
-            <div className="relative h-4/5 max-w-3xl overflow-x-auto mt-6 border border-transparent dark:border-slate-850 bg-white dark:bg-[#111827] rounded-2xl shadow-lg p-2">
+            <div className="relative h-4/5 max-w-3xl overflow-x-auto mt-6 border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111827] rounded-2xl shadow-sm p-2">
                 <table className="w-full text-sm text-slate-500 dark:text-slate-400">
-                    <thead className="text-xs text-slate-500 dark:text-slate-400 text-left uppercase border-b border-transparent dark:border-slate-800">
+                    <thead className="text-xs text-slate-500 dark:text-slate-400 text-left uppercase border-b border-slate-200 dark:border-slate-800">
                         <tr>
                             <th scope="col" className="px-4 py-4 font-bold">
                                 Blog Title & Comment

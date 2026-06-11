@@ -2,7 +2,7 @@ import React from "react";
 
 const AIAnalytics = () => {
     return (
-        <div className="flex-1 bg-[rgb(219,218,218)] dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 md:p-10 overflow-y-auto font-sans">
+        <div className="flex-1 bg-transparent dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 md:p-10 overflow-y-auto font-sans">
             <div className="mb-8">
                 <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                     <span>📊</span> AI Analytics &amp; Performance
@@ -18,7 +18,7 @@ const AIAnalytics = () => {
                     { value: "12.5s", label: "Avg AI Response Latency" },
                     { value: "98.5%", label: "Prompt Success Rate" },
                 ].map((stat, i) => (
-                    <div key={i} className="bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700 p-6 rounded-2xl shadow-lg transition-shadow">
+                    <div key={i} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl shadow-lg transition-shadow">
                         <p className="text-2xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
                         <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-semibold">{stat.label}</p>
                     </div>
@@ -26,9 +26,9 @@ const AIAnalytics = () => {
             </div>
 
             {/* SVG Usage Chart */}
-            <div className="bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-2xl p-6 mb-10 shadow-lg transition-shadow">
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 mb-10 shadow-lg transition-shadow">
                 <h2 className="text-sm font-bold text-slate-600 dark:text-slate-300 mb-6 uppercase tracking-wider">AI Generation History (Daily Spends)</h2>
-                <div className="w-full h-64 relative bg-[rgb(219,218,218)] dark:bg-slate-900/50 rounded-xl p-4 border border-transparent dark:border-slate-700/80">
+                <div className="w-full h-64 relative bg-transparent dark:bg-slate-900/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700/80">
                     <svg viewBox="0 0 500 150" className="w-full h-full">
                         <line x1="0" y1="30" x2="500" y2="30" stroke="#cbd5e1" className="dark:stroke-slate-700" strokeDasharray="4" />
                         <line x1="0" y1="75" x2="500" y2="75" stroke="#cbd5e1" className="dark:stroke-slate-700" strokeDasharray="4" />
@@ -48,11 +48,11 @@ const AIAnalytics = () => {
             </div>
 
             {/* AI History Table log */}
-            <div className="bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-2xl p-6 shadow-lg transition-shadow">
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-lg transition-shadow">
                 <h2 className="text-sm font-bold text-slate-600 dark:text-slate-300 mb-4 uppercase tracking-wider">AI Operations Log</h2>
-                <div className="relative overflow-x-auto rounded-xl border border-transparent dark:border-slate-700/50 shadow-lg">
+                <div className="relative overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-lg">
                     <table className="w-full text-sm text-slate-600 dark:text-slate-400 text-left">
-                        <thead className="text-xs uppercase text-slate-500 dark:text-slate-500 border-b border-transparent dark:border-slate-700 bg-[rgb(219,218,218)] dark:bg-slate-900/40">
+                        <thead className="text-xs uppercase text-slate-500 dark:text-slate-500 border-b border-slate-200 dark:border-slate-700 bg-transparent dark:bg-slate-900/40">
                             <tr>
                                 <th className="py-3 px-4 font-bold">Action</th>
                                 <th className="py-3 px-4 font-bold">Prompt Description</th>
@@ -66,7 +66,7 @@ const AIAnalytics = () => {
                                 { action: "Translate Blog", desc: "Taxes on Luxury Houses translated to Spanish...", tokens: "950", time: "2026-06-01 12:45" },
                                 { action: "Generate Summary", desc: "study hacks for college students summary...", tokens: "480", time: "2026-05-31 09:30" },
                             ].map((row, i) => (
-                                <tr key={i} className="border-b border-transparent dark:border-slate-700/40 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-700/20 transition-colors">
+                                <tr key={i} className="border-b border-slate-200 dark:border-slate-700/40 hover:bg-slate-100 dark:hover:bg-slate-700/20 transition-colors">
                                     <td className="py-3.5 px-4 font-semibold text-slate-800 dark:text-white">{row.action}</td>
                                     <td className="py-3.5 px-4 truncate max-w-[200px] text-slate-600 dark:text-slate-400">{row.desc}</td>
                                     <td className="py-3.5 px-4 text-violet-600 dark:text-violet-400 font-bold">{row.tokens}</td>

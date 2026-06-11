@@ -50,7 +50,7 @@ const Dashboard = () => {
 
     // Modern SaaS Dashboard View (Combined Admin & Regular layout based on roles, unified styling)
     return (
-        <div className="flex-1 p-[32px] md:p-[64px] bg-[rgb(219,218,218)] dark:bg-slate-950 text-slate-800 dark:text-slate-100 overflow-y-auto space-y-[32px] transition-colors duration-300">
+        <div className="flex-1 p-[32px] md:p-[64px] bg-transparent dark:bg-slate-950 text-slate-800 dark:text-slate-100 overflow-y-auto space-y-[32px] transition-colors duration-300">
             {/* Header */}
             <div className="bz-card flex justify-between items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[24px] p-[24px] shadow-lg transition-colors duration-300">
                 <div>
@@ -105,7 +105,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-[24px]">
                 <div className="bz-card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-lg p-[24px] rounded-[24px]">
                     <h2 className="text-[14px] font-bold text-slate-900 dark:text-white mb-[24px]">Traffic Overview</h2>
-                    <div className="h-[250px] w-full bg-[rgb(219,218,218)] dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800 rounded-[16px] p-[16px] relative flex items-center justify-center transition-colors duration-300">
+                    <div className="h-[250px] w-full bg-transparent dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800 rounded-[16px] p-[16px] relative flex items-center justify-center transition-colors duration-300">
                         <svg viewBox="0 0 500 150" className="w-full h-full opacity-80">
                             <line x1="0" y1="30" x2="500" y2="30" stroke="var(--color-slate-200, #E2E8F0)" strokeDasharray="4" />
                             <line x1="0" y1="75" x2="500" y2="75" stroke="var(--color-slate-200, #E2E8F0)" strokeDasharray="4" />
@@ -117,7 +117,7 @@ const Dashboard = () => {
 
                 <div className="bz-card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-lg p-[24px] rounded-[24px]">
                     <h2 className="text-[14px] font-bold text-slate-900 dark:text-white mb-[24px]">AI Usage Matrix</h2>
-                    <div className="h-[250px] w-full bg-[rgb(219,218,218)] dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800 rounded-[16px] p-[16px] relative flex items-center justify-center transition-colors duration-300">
+                    <div className="h-[250px] w-full bg-transparent dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800 rounded-[16px] p-[16px] relative flex items-center justify-center transition-colors duration-300">
                          <svg viewBox="0 0 500 150" className="w-full h-full opacity-80">
                             <line x1="0" y1="130" x2="500" y2="130" stroke="var(--color-slate-200, #E2E8F0)" strokeWidth="2" />
                             <rect x="40" y="80" width="40" height="50" fill="#7C3AED" rx="4" />
@@ -169,7 +169,7 @@ const Dashboard = () => {
                     <h2 className="text-[14px] font-bold text-slate-900 dark:text-white mb-[24px]">System Notifications</h2>
                     <div className="space-y-[16px]">
                         {dashboardData.isAdmin && dashboardData.recentUsers?.slice(0, 4).map((user) => (
-                            <div key={user._id} className="flex gap-[16px] items-start p-[16px] bg-[rgb(219,218,218)] dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-[16px] transition-colors duration-300">
+                            <div key={user._id} className="flex gap-[16px] items-start p-[16px] bg-transparent dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-[16px] transition-colors duration-300">
                                 <div className="w-[8px] h-[8px] rounded-full bg-[#7C3AED] mt-[6px]" />
                                 <div>
                                     <p className="text-[14px] font-bold text-slate-900 dark:text-white">New user registered</p>
@@ -179,7 +179,7 @@ const Dashboard = () => {
                             </div>
                         ))}
                         {(!dashboardData.isAdmin || !dashboardData.recentUsers || dashboardData.recentUsers.length === 0) && (
-                            <div className="p-[24px] text-center bg-[rgb(219,218,218)] dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-[16px] transition-colors duration-300">
+                            <div className="p-[24px] text-center bg-transparent dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-[16px] transition-colors duration-300">
                                 <p className="text-[13px] text-slate-500 dark:text-slate-400">No recent notifications.</p>
                             </div>
                         )}

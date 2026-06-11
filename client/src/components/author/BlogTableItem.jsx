@@ -41,46 +41,57 @@ const BlogTableItem = ({ blog, fetchBlogs, index }) => {
     };
 
     return (
-        <tr className="border-y border-transparent dark:border-slate-800/60 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-800/30 transition-colors">
-            <th className="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-left">{index}</th>
-            <td className="px-4 py-4 font-medium text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                <span>{title}</span>
-                {blog.isAiGenerated && (
-                    <span className="px-1.5 py-0.5 bg-violet-100 dark:bg-violet-950/40 text-violet-750 dark:text-violet-300 rounded text-[10px] font-bold">
-                        AI
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow relative group">
+            <div className="flex flex-col gap-3">
+                <div className="flex justify-between items-start">
+                    <span className="text-xs font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-900/50 px-2 py-1 rounded-md">
+                        #{index}
                     </span>
-                )}
-            </td>
-            <td className="px-4 py-4 text-slate-500 dark:text-slate-400 max-sm:hidden text-sm"> {BlogDate.toDateString()} </td>
-            <td className="px-4 py-4 max-sm:hidden">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-                    blog.isPublished 
-                        ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/30" 
-                        : "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-900/30"
-                }`}>
-                    {blog.isPublished ? "Published" : "Unpublished"}
-                </span>
-            </td>
-            <td className="px-4 py-4 flex items-center gap-3">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${
+                        blog.isPublished 
+                            ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/30" 
+                            : "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-900/30"
+                    }`}>
+                        {blog.isPublished ? "Published" : "Draft"}
+                    </span>
+                </div>
+                
+                <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 leading-snug line-clamp-2">
+                    {title}
+                </h3>
+                
+                <div className="flex items-center gap-2">
+                    {blog.isAiGenerated && (
+                        <span className="px-1.5 py-0.5 bg-violet-100 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300 rounded text-[10px] font-bold border border-violet-200 dark:border-violet-800/50">
+                            AI Generated
+                        </span>
+                    )}
+                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                        {BlogDate.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                </div>
+            </div>
+
+            <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
                 <button 
                     onClick={togglePublish} 
-                    className={`px-3 py-1 text-xs font-semibold rounded-full border transition-all duration-200 cursor-pointer ${
+                    className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all duration-200 cursor-pointer w-full mr-3 ${
                         blog.isPublished 
-                            ? "border-transparent dark:border-slate-800 text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-850 hover:text-slate-800 dark:hover:text-white" 
-                            : "border-violet-200 dark:border-violet-900/50 text-violet-600 dark:text-violet-400 bg-violet-50/30 dark:bg-violet-950/20 hover:bg-violet-50 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 shadow-lg"
+                            ? "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800" 
+                            : "border-violet-200 dark:border-violet-900/50 text-violet-700 dark:text-violet-300 bg-violet-50/50 dark:bg-violet-900/20 hover:bg-violet-100 dark:hover:bg-violet-800/30 shadow-sm"
                     }`}
                 >
-                    {blog.isPublished ? "Unpublish" : "Publish"}
+                    {blog.isPublished ? "Unpublish" : "Publish Now"}
                 </button>
                 <button 
                     onClick={deleteBlog} 
-                    className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all cursor-pointer"
+                    className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:border-rose-200 dark:hover:border-rose-900/50 hover:text-rose-600 transition-all cursor-pointer flex-shrink-0"
                     title="Delete Blog"
                 >
-                    <img src={assets.cross_icon} className="w-5" alt="Delete" />
+                    <img src={assets.cross_icon} className="w-4 h-4 opacity-70 group-hover:opacity-100" style={{ filter: 'invert(0.5) sepia(1) saturate(5) hue-rotate(320deg)' }} alt="Delete" />
                 </button>
-            </td>
-        </tr>
+            </div>
+        </div>
     );
 };
 

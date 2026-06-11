@@ -62,7 +62,7 @@ const Header = () => {
                             const element = document.getElementById("blog-list");
                             element?.scrollIntoView({ behavior: "smooth" });
                         }}
-                        className="px-8 py-3.5 bg-white text-slate-700 dark:bg-slate-900 dark:text-slate-200 border border-slate-200 dark:border-slate-800 font-bold rounded-xl cursor-pointer hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-800 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+                        className="px-8 py-3.5 bg-white text-slate-700 dark:bg-slate-900 dark:text-slate-200 border border-slate-200 dark:border-slate-800 font-bold rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
                     >
                         Explore Articles
                     </button>
@@ -70,7 +70,7 @@ const Header = () => {
 
                 {/* Search Bar */}
                 <form onSubmit={onSubmitHandler} className="flex justify-between max-w-lg mx-auto border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-1.5 focus-within:ring-4 focus-within:ring-violet-500/10 focus-within:border-violet-500/50 transition duration-300">
-                    <input ref={inputRef} type="text" placeholder="Search articles, keywords, categories..." required className="w-full pl-4 outline-none text-slate-800 dark:text-slate-100 placeholder-slate-500 font-bold bg-[rgb(219,218,218)] dark:bg-slate-900 text-sm" />
+                    <input ref={inputRef} type="text" placeholder="Search articles, keywords, categories..." required className="w-full pl-4 outline-none text-slate-800 dark:text-slate-100 placeholder-slate-500 font-bold bg-transparent dark:bg-slate-900 text-sm" />
                     <button type="submit" className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-8 py-2.5 rounded-xl hover:shadow hover:scale-[1.02] active:scale-[0.98] transition cursor-pointer font-extrabold text-sm">
                         Search
                     </button>
@@ -78,7 +78,7 @@ const Header = () => {
 
                 {input && (
                     <div className="text-center pt-2">
-                        <button onClick={onClear} className="border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-850 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold text-xs py-1.5 px-4 rounded-full transition cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+                        <button onClick={onClear} className="border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold text-xs py-1.5 px-4 rounded-full transition cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
                             Clear Search
                         </button>
                     </div>

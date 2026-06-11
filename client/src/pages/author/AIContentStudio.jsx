@@ -28,7 +28,7 @@ const AIContentStudio = () => {
     };
 
     return (
-        <div className="flex-1 bg-[rgb(219,218,218)] dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 md:p-10 overflow-y-auto font-sans flex flex-col">
+        <div className="flex-1 bg-transparent dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 md:p-10 overflow-y-auto font-sans flex flex-col">
             <div className="mb-8">
                 <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                     <span>🎙️</span> AI Content Studio Workspace
@@ -38,14 +38,14 @@ const AIContentStudio = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start flex-grow">
                 {/* Inputs area */}
-                <div className="lg:col-span-5 bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-2xl p-6 space-y-6 shadow-lg transition-shadow">
+                <div className="lg:col-span-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 space-y-6 shadow-lg transition-shadow">
                     <div>
                         <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-2">Topic or Keyword Focus</label>
                         <textarea
                             value={topic}
                             onChange={(e) => setTopic(e.target.value)}
                             placeholder="Enter a prompt (e.g. 'Benefits of eating apples every morning' or 'Tailwind CSS v4 updates')"
-                            className="w-full h-32 bg-[rgb(219,218,218)] dark:bg-slate-900 border border-transparent dark:border-slate-700 rounded-xl p-3 outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all resize-none shadow-lg"
+                            className="w-full h-32 bg-transparent dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all resize-none shadow-lg"
                         />
                     </div>
 
@@ -54,7 +54,7 @@ const AIContentStudio = () => {
                         <select
                             value={tone}
                             onChange={(e) => setTone(e.target.value)}
-                            className="w-full bg-[rgb(219,218,218)] dark:bg-slate-900 border border-transparent dark:border-slate-700 rounded-xl p-3 outline-none text-slate-700 dark:text-slate-300 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all shadow-lg"
+                            className="w-full bg-transparent dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 outline-none text-slate-700 dark:text-slate-300 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all shadow-lg"
                         >
                             <option value="Professional">💼 Professional &amp; Authoritative</option>
                             <option value="Informal">☕ Casual &amp; Friendly</option>
@@ -67,14 +67,14 @@ const AIContentStudio = () => {
                         <button
                             type="button"
                             onClick={() => handleAction("outline")}
-                            className="py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-xs text-slate-700 dark:text-white font-bold rounded-xl border border-transparent dark:border-slate-600 transition cursor-pointer"
+                            className="py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-xs text-slate-700 dark:text-white font-bold rounded-xl border border-slate-200 dark:border-slate-600 transition cursor-pointer"
                         >
                             📋 Outline
                         </button>
                         <button
                             type="button"
                             onClick={() => handleAction("keywords")}
-                            className="py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-xs text-slate-700 dark:text-white font-bold rounded-xl border border-transparent dark:border-slate-600 transition cursor-pointer"
+                            className="py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-xs text-slate-700 dark:text-white font-bold rounded-xl border border-slate-200 dark:border-slate-600 transition cursor-pointer"
                         >
                             🔍 SEO Tags
                         </button>
@@ -89,8 +89,8 @@ const AIContentStudio = () => {
                 </div>
 
                 {/* Outputs Panel */}
-                <div className="lg:col-span-7 bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-2xl p-6 min-h-[380px] flex flex-col shadow-lg transition-shadow">
-                    <div className="flex justify-between items-center border-b border-transparent dark:border-slate-700 pb-3 mb-4">
+                <div className="lg:col-span-7 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 min-h-[380px] flex flex-col shadow-lg transition-shadow">
+                    <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3 mb-4">
                         <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">Generated Studio Output</h3>
                         {output && (
                             <button
@@ -111,7 +111,7 @@ const AIContentStudio = () => {
                             <p className="text-xs text-slate-400 dark:text-slate-400 font-semibold">Gemini API orchestrating content...</p>
                         </div>
                     ) : output ? (
-                        <div className="reset-tw max-w-full text-sm leading-relaxed overflow-y-auto max-h-[300px] border border-transparent dark:border-slate-700 bg-[rgb(219,218,218)] dark:bg-slate-900/30 p-4 rounded-xl flex-grow shadow-lg" dangerouslySetInnerHTML={{ __html: output }}></div>
+                        <div className="reset-tw max-w-full text-sm leading-relaxed overflow-y-auto max-h-[300px] border border-slate-200 dark:border-slate-700 bg-transparent dark:bg-slate-900/30 p-4 rounded-xl flex-grow shadow-lg" dangerouslySetInnerHTML={{ __html: output }}></div>
                     ) : (
                         <div className="text-center py-20 text-slate-400 dark:text-slate-500 text-sm flex-grow flex items-center justify-center">
                             Generated drafts, outlines, or SEO tags will render here.

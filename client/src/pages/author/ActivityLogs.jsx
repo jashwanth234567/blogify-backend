@@ -58,14 +58,14 @@ const ActivityLogs = () => {
 
     if (!isAdmin) {
         return (
-            <div className="flex-1 flex items-center justify-center p-10 bg-[rgb(219,218,218)] text-slate-800 dark:text-slate-200">
+            <div className="flex-1 flex items-center justify-center p-10 bg-transparent text-slate-800 dark:text-slate-200">
                 <p className="text-xl font-bold">Access Denied: Admin Only</p>
             </div>
         );
     }
 
     return (
-        <div className="flex-1 p-4 md:p-10 bg-[rgb(219,218,218)] overflow-scroll">
+        <div className="flex-1 p-4 md:p-10 bg-transparent overflow-scroll">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">User Activity Audit Logs</h1>
                 <button
@@ -81,9 +81,9 @@ const ActivityLogs = () => {
                     <div className="w-8 h-8 rounded-full border-2 border-t-violet-600 animate-spin"></div>
                 </div>
             ) : (
-                <div className="relative max-w-6xl overflow-x-auto border border-transparent dark:border-slate-850 bg-white dark:bg-[#111827] rounded-2xl shadow-lg p-2">
+                <div className="relative max-w-6xl overflow-x-auto border border-slate-200 dark:border-slate-850 bg-white dark:bg-[#111827] rounded-2xl shadow-lg p-2">
                     <table className="w-full text-sm text-slate-500">
-                        <thead className="text-xs text-slate-500 text-left uppercase border-b border-transparent dark:border-slate-800">
+                        <thead className="text-xs text-slate-500 text-left uppercase border-b border-slate-200 dark:border-slate-800">
                             <tr>
                                 <th scope="col" className="px-4 py-4 font-bold text-left">
                                     Time
@@ -101,7 +101,7 @@ const ActivityLogs = () => {
                         </thead>
                         <tbody>
                             {logs.map((log) => (
-                                <tr key={log._id} className="border-b border-slate-250 dark:border-slate-800/40 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-800/30 transition-colors duration-205">
+                                <tr key={log._id} className="border-b border-slate-250 dark:border-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-colors duration-205">
                                     <td className="px-4 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
                                         {Moment(log.createdAt).format("YYYY-MM-DD HH:mm:ss")}
                                     </td>

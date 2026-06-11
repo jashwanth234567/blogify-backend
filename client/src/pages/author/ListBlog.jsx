@@ -29,7 +29,7 @@ const ListBlog = () => {
     }, []);
 
     return (
-        <div className="flex-1 p-10 bg-[rgb(219,218,218)] dark:bg-slate-950 text-slate-800 dark:text-slate-100 overflow-y-auto transition-colors duration-300">
+        <div className="flex-1 p-10 bg-transparent dark:bg-slate-950 text-slate-800 dark:text-slate-100 overflow-y-auto transition-colors duration-300">
             {/* Page Header */}
             <div className="saas-container" style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
@@ -48,52 +48,24 @@ const ListBlog = () => {
                 </div>
             </div>
 
-            {/* Table Card */}
-            <div className="saas-container" style={{ padding: 0, overflow: "hidden" }}>
+            {/* Cards Grid */}
+            <div className="pb-10">
                 {loading ? (
-                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "80px" }}>
-                        <div style={{
-                            width: "40px",
-                            height: "40px",
-                            borderRadius: "50%",
-                            border: "3px solid var(--color-slate-200, #E2E8F0)",
-                            borderTopColor: "#7C3AED",
-                            animation: "spin 0.8s linear infinite",
-                        }} />
+                    <div className="flex justify-center items-center p-20">
+                        <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-violet-600 animate-spin" />
+                    </div>
+                ) : blogs.length === 0 ? (
+                    <div className="text-center p-16 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-500 font-medium shadow-sm">
+                        No blogs found. Create your first blog!
                     </div>
                 ) : (
-                    <div style={{ overflowX: "auto" }}>
-                        <table className="saas-table">
-                            <thead>
-                                <tr>
-                                    <th style={{ paddingLeft: "28px" }}>#</th>
-                                    <th>Blog Title</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th style={{ paddingRight: "28px" }}>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {blogs.length === 0 ? (
-                                    <tr>
-                                        <td colSpan="5" className="text-center p-16 text-slate-450 dark:text-slate-500 font-medium">
-                                            No blogs found. Create your first blog!
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    blogs.map((blog, index) => (
-                                        <BlogTableItem key={blog._id} blog={blog} fetchBlogs={fetchBlogs} index={index + 1} />
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {blogs.map((blog, index) => (
+                            <BlogTableItem key={blog._id} blog={blog} fetchBlogs={fetchBlogs} index={index + 1} />
+                        ))}
                     </div>
                 )}
             </div>
-
-            <style>{`
-                @keyframes spin { to { transform: rotate(360deg); } }
-            `}</style>
         </div>
     );
 };

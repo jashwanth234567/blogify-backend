@@ -43,9 +43,9 @@ const AIChatAssistant = () => {
     }, [history]);
 
     return (
-        <div className="flex-1 bg-[rgb(219,218,218)] dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col h-full overflow-hidden font-sans">
+        <div className="flex-1 bg-transparent dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col h-full overflow-hidden font-sans">
             {/* Top Workspace Header */}
-            <div className="p-5 border-b border-transparent dark:border-slate-800 bg-white dark:bg-slate-900/80 flex justify-between items-center shadow-lg">
+            <div className="p-5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 flex justify-between items-center shadow-sm z-10">
                 <div>
                     <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                         <span>✨</span> AI Chat Assistant Workspace
@@ -54,7 +54,7 @@ const AIChatAssistant = () => {
                 </div>
                 <button
                     onClick={() => setHistory([{ role: "model", text: "History cleared. How can I help you write today?" }])}
-                    className="px-3.5 py-1.5 border border-transparent dark:border-slate-700 hover:border-transparent dark:hover:border-slate-600 text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-700 text-xs rounded-xl transition duration-200 cursor-pointer font-semibold"
+                    className="px-3.5 py-1.5 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs rounded-xl transition duration-200 cursor-pointer font-semibold shadow-sm"
                 >
                     Clear History
                 </button>
@@ -63,13 +63,13 @@ const AIChatAssistant = () => {
             <div className="flex-1 flex overflow-hidden">
                 {/* Chat Panel */}
                 <div className="flex-grow flex flex-col justify-between overflow-hidden">
-                    <div className="flex-grow p-6 overflow-y-auto space-y-4 bg-[rgb(219,218,218)] dark:bg-slate-900/30">
+                    <div className="flex-grow p-6 overflow-y-auto space-y-4 bg-transparent dark:bg-slate-900/30">
                         {history.map((item, idx) => (
                             <div key={idx} className={`flex ${item.role === "user" ? "justify-end" : "justify-start"}`}>
-                                <div className={`max-w-[75%] p-4 rounded-2xl leading-relaxed text-sm shadow-lg ${
+                                <div className={`max-w-[75%] p-4 rounded-2xl leading-relaxed text-sm shadow-sm ${
                                     item.role === "user"
                                         ? "bg-violet-600 text-white rounded-tr-none shadow-violet-500/20"
-                                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-transparent dark:border-slate-700 rounded-tl-none shadow-lg"
+                                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-tl-none shadow-sm"
                                 }`}>
                                     <p className="whitespace-pre-line">{item.text}</p>
                                 </div>
@@ -77,7 +77,7 @@ const AIChatAssistant = () => {
                         ))}
                         {loading && (
                             <div className="flex justify-start">
-                                <div className="bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-2xl rounded-tl-none p-4 flex items-center gap-2 shadow-lg">
+                                <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-none p-4 flex items-center gap-2 shadow-sm">
                                     <div className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
                                     <div className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
                                     <div className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
@@ -88,13 +88,13 @@ const AIChatAssistant = () => {
                     </div>
 
                     {/* Entry Form */}
-                    <form onSubmit={handleSendMessage} className="p-4 bg-white dark:bg-slate-900/80 border-t border-transparent dark:border-slate-800/80 flex gap-3 shadow-lg">
+                    <form onSubmit={handleSendMessage} className="p-4 bg-white dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800/80 flex gap-3 shadow-md z-10 relative">
                         <input
                             type="text"
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             placeholder="Type writing instruction..."
-                            className="flex-grow bg-[rgb(219,218,218)] dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-2xl px-4 py-3 outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-505 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all shadow-lg"
+                            className="flex-grow bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-505 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all shadow-inner"
                         />
                         <button
                             type="submit"
@@ -107,7 +107,7 @@ const AIChatAssistant = () => {
                 </div>
 
                 {/* Prompts Guide Sidebar */}
-                <div className="w-72 border-l border-transparent dark:border-slate-800 bg-white dark:bg-slate-900/50 p-5 hidden xl:block space-y-5 overflow-y-auto shadow-lg">
+                <div className="w-72 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-5 hidden xl:block space-y-5 overflow-y-auto shadow-sm z-10 relative">
                     <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Recommended Actions</h3>
                     <div className="space-y-3">
                         {[
@@ -119,7 +119,7 @@ const AIChatAssistant = () => {
                             <div
                                 key={i}
                                 onClick={() => setMessage(item.msg)}
-                                className="p-3 border border-transparent dark:border-slate-700/80 hover:border-violet-300 dark:hover:border-slate-600 hover:bg-violet-50/50 dark:hover:bg-slate-800/30 bg-[rgb(219,218,218)] dark:bg-transparent rounded-xl cursor-pointer transition-all duration-200 shadow-lg"
+                                className="p-3 border border-slate-200 dark:border-slate-700/80 hover:border-violet-300 dark:hover:border-slate-600 hover:bg-violet-50/50 dark:hover:bg-slate-800/30 bg-white dark:bg-slate-800 rounded-xl cursor-pointer transition-all duration-200 shadow-sm"
                             >
                                 <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">{item.icon} {item.title}</h4>
                                 <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">{item.desc}</p>

@@ -27,7 +27,7 @@ const HelpCenter = () => {
     };
 
     return (
-        <div className="flex-1 bg-[rgb(219,218,218)] dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 md:p-10 overflow-y-auto font-sans">
+        <div className="flex-1 bg-transparent dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 md:p-10 overflow-y-auto font-sans">
             <div className="mb-8">
                 <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                     <span>💡</span> Help &amp; FAQ Center
@@ -37,7 +37,7 @@ const HelpCenter = () => {
 
             <div className="max-w-3xl mx-auto space-y-4">
                 {faqs.map((faq, idx) => (
-                    <div key={idx} className={`bg-white dark:bg-slate-800 border rounded-2xl overflow-hidden transition-all duration-200 shadow-lg dark:shadow-none ${activeIndex === idx ? 'border-violet-200 dark:border-violet-500/30 shadow-lg dark:shadow-none' : 'border-transparent dark:border-slate-700'}`}>
+                    <div key={idx} className={`bg-white dark:bg-slate-800 border rounded-2xl overflow-hidden transition-all duration-200 shadow-lg dark:shadow-none ${activeIndex === idx ? 'border-violet-200 dark:border-violet-500/30 shadow-lg dark:shadow-none' : 'border-slate-200 dark:border-slate-700'}`}>
                         <button
                             onClick={() => toggleFaq(idx)}
                             className="w-full text-left p-5 font-semibold text-sm sm:text-base text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white flex justify-between items-center outline-none focus:outline-none cursor-pointer transition-colors"
@@ -48,7 +48,7 @@ const HelpCenter = () => {
                             </span>
                         </button>
                         {activeIndex === idx && (
-                            <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed border-t border-slate-100 dark:border-slate-700/40 bg-[rgb(219,218,218)] dark:bg-transparent">
+                            <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed border-t border-slate-100 dark:border-slate-700/40 bg-transparent dark:bg-transparent">
                                 {faq.a}
                             </div>
                         )}

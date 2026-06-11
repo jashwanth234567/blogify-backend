@@ -22,7 +22,7 @@ const AIAudioStudio = () => {
     const stopSpeech = () => { window.speechSynthesis.cancel(); setStatus("Idle"); };
 
     return (
-        <div className="flex-1 bg-[rgb(219,218,218)] dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 md:p-10 overflow-y-auto font-sans">
+        <div className="flex-1 bg-transparent dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 md:p-10 overflow-y-auto font-sans">
             <div className="mb-8">
                 <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                     <span>🎙️</span> AI Audio Reader Studio
@@ -32,23 +32,23 @@ const AIAudioStudio = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
                 {/* Inputs card */}
-                <div className="lg:col-span-7 bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-2xl p-6 flex flex-col shadow-lg transition-shadow">
+                <div className="lg:col-span-7 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 flex flex-col shadow-lg transition-shadow">
                     <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-3">Vocalizer Source Text</label>
                     <textarea
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         placeholder="Enter article text or paste paragraph block here..."
-                        className="w-full flex-1 h-80 bg-[rgb(219,218,218)] dark:bg-slate-900 border border-transparent dark:border-slate-700 rounded-xl p-3 outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all resize-none shadow-lg"
+                        className="w-full flex-1 h-80 bg-transparent dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all resize-none shadow-lg"
                     />
                 </div>
 
                 {/* Player card */}
-                <div className="lg:col-span-5 bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-2xl p-6 flex flex-col justify-between shadow-lg transition-shadow">
+                <div className="lg:col-span-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 flex flex-col justify-between shadow-lg transition-shadow">
                     <div className="space-y-6">
-                        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 border-b border-transparent dark:border-slate-700 pb-3">Audio Mixer &amp; Controls</h3>
+                        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700 pb-3">Audio Mixer &amp; Controls</h3>
 
                         {/* Status bar */}
-                        <div className="flex items-center gap-3 bg-[rgb(219,218,218)] dark:bg-slate-900/60 p-4 rounded-xl border border-transparent dark:border-slate-700 shadow-lg">
+                        <div className="flex items-center gap-3 bg-transparent dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg">
                             <div className="flex gap-0.5 items-end h-5 w-5">
                                 {status === "Speaking" ? (
                                     <>
@@ -88,7 +88,7 @@ const AIAudioStudio = () => {
                     </div>
 
                     {/* Action buttons */}
-                    <div className="flex gap-3 pt-6 border-t border-transparent dark:border-slate-700 mt-6">
+                    <div className="flex gap-3 pt-6 border-t border-slate-200 dark:border-slate-700 mt-6">
                         {status === "Speaking" ? (
                             <button onClick={pauseSpeech} className="flex-1 py-3 bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-500 border border-amber-200 dark:border-amber-500/20 font-bold rounded-xl cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-500/20 transition text-sm">
                                 Pause Mixer

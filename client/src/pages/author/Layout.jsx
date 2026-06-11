@@ -8,6 +8,7 @@ const Layout = () => {
     const { navigate, isDarkMode, toggleDarkMode, notifications, markNotificationRead, markAllNotificationsRead, handleLogout } = useAppContext();
     const [showDropdown, setShowDropdown] = useState(false);
     const [collapsed, setCollapsed] = useState(false);
+    const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
     const dropdownRef = useRef(null);
 
     const unreadCount = notifications.filter(n => !n.isRead).length;
@@ -31,33 +32,55 @@ const Layout = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[rgb(219,218,218)] dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
+        <div 
+            className="min-h-screen bg-transparent dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300"
+            style={{ 
+                paddingLeft: 'env(safe-area-inset-left)', 
+                paddingRight: 'env(safe-area-inset-right)',
+                paddingBottom: 'env(safe-area-inset-bottom)'
+            }}
+        >
             {/* Header */}
-            <div className="flex items-center justify-between py-2 h-[70px] px-4 sm:px-8 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/90 dark:bg-[#111827]/90 backdrop-blur-md transition-colors duration-300 z-40 relative shadow-[0_1px_3px_rgba(15,23,42,0.02)]">
+            <div className="flex items-center justify-between py-2 h-[70px] px-4 sm:px-8 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#111827]/90 backdrop-blur-md transition-colors duration-300 z-40 relative shadow-sm">
                 <div className="flex items-center gap-3">
+                    {/* Hamburger Menu (Mobile Only) */}
+                    <button 
+                        onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)}
+                        className="md:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none min-h-[48px] min-w-[48px] flex items-center justify-center"
+                        aria-label="Toggle Menu"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
                     <img
                         src={isDarkMode ? assets.logo_light : assets.logo}
                         alt="logo"
-                        className="w-32 sm:w-36 cursor-pointer"
+                        className="w-28 sm:w-36 cursor-pointer hidden sm:block"
                         onClick={() => navigate("/")}
                     />
-                    <span className="text-[10px] uppercase font-bold tracking-widest bg-violet-600/20 text-violet-600 dark:text-violet-400 border border-violet-500/20 px-2 py-0.5 rounded">SaaS Pro</span>
+                    <div 
+                        className="sm:hidden w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white cursor-pointer shadow-sm"
+                        onClick={() => navigate("/")}
+                        title="Blogify AI"
+                    >
+                        <span className="text-sm">✍️</span>
+                    </div>
+                    <span className="text-[10px] uppercase font-bold tracking-widest bg-violet-600/20 text-violet-600 dark:text-violet-400 border border-violet-500/20 px-2 py-0.5 rounded hidden sm:inline-block">SaaS Pro</span>
                 </div>
                 
                 <div className="flex items-center gap-3">
                     {/* Dark Mode Toggle */}
                     <button
                         onClick={toggleDarkMode}
-                        className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
+                        className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
                         aria-label="Toggle Dark Mode"
                     >
                         {isDarkMode ? (
-                            <svg className="w-5 h-5 fill-amber-400" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 2.293a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zm4 4.707a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM14 15.707a1 1 0 010-1.414l.707-.707a1 1 0 111.414 1.414l-.707.707a1 1 0 01-1.414 0zm-4 1.293a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-4-2.293a1 1 0 01-1.414 0l-.707-.707a1 1 0 011.414-1.414l.707.707a1 1 0 010 1.414zM2 10a1 1 0 011-1h1a1 1 0 110 2H3a1 1 0 01-1-1zm2-4.293a1 1 0 010 1.414l-.707.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM10 6a4 4 0 100 8 4 4 0 000-8z" clipRule="evenodd" />
+                            <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
                             </svg>
                         ) : (
-                            <svg className="w-5 h-5 fill-slate-500" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                            <svg className="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
                             </svg>
                         )}
                     </button>
@@ -66,7 +89,7 @@ const Layout = () => {
                     <div className="relative" ref={dropdownRef}>
                         <button
                             onClick={() => setShowDropdown(!showDropdown)}
-                            className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] relative"
+                            className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] relative"
                             aria-label="Notifications"
                         >
                             <svg className={`w-5 h-5 ${unreadCount > 0 ? 'animate-bounce' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -138,16 +161,30 @@ const Layout = () => {
                         )}
                     </div>
 
-                    <button onClick={handleLogout} className="text-xs px-5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold rounded-xl cursor-pointer transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+                    <button onClick={handleLogout} className="text-xs px-5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold rounded-xl cursor-pointer transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
                         Logout
                     </button>
                 </div>
             </div>
 
             {/* Layout body */}
-            <div className="flex h-[calc(100vh-70px)] bg-[rgb(219,218,218)] dark:bg-slate-950 overflow-hidden transition-colors duration-300">
-                <Sidebar collapsed={collapsed} toggleCollapse={() => setCollapsed(!collapsed)} />
-                <div className="flex-1 overflow-y-auto bg-[rgb(219,218,218)] dark:bg-slate-950 relative transition-colors duration-300">
+            <div className="flex h-[calc(100vh-70px)] bg-transparent dark:bg-slate-950 overflow-hidden transition-colors duration-300 relative">
+                {/* Mobile Drawer Overlay */}
+                {mobileDrawerOpen && (
+                    <div 
+                        className="md:hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 transition-opacity"
+                        onClick={() => setMobileDrawerOpen(false)}
+                    />
+                )}
+                {/* Sidebar Container */}
+                <div className={`
+                    fixed md:static inset-y-0 left-0 z-50 h-[calc(100vh-70px)] md:h-auto
+                    transform ${mobileDrawerOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
+                    transition-transform duration-300 ease-in-out
+                `}>
+                    <Sidebar collapsed={collapsed} toggleCollapse={() => setCollapsed(!collapsed)} setMobileDrawerOpen={setMobileDrawerOpen} />
+                </div>
+                <div className="flex-1 overflow-y-auto bg-transparent dark:bg-slate-950 relative transition-colors duration-300">
                     <Outlet />
                 </div>
             </div>

@@ -41,7 +41,7 @@ const Newsletter = () => {
             
             <form onSubmit={handleSubscribe} className="flex items-center justify-between max-w-xl w-full border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl p-1.5 focus-within:border-violet-500/60 focus-within:ring-4 focus-within:ring-violet-500/10 transition-all duration-300">
                 <input 
-                    className="w-full pl-4 outline-none text-slate-800 dark:text-slate-100 placeholder-slate-500 font-medium bg-[rgb(219,218,218)] dark:bg-slate-900 text-sm transition-colors duration-300" 
+                    className="w-full pl-4 outline-none text-slate-800 dark:text-slate-100 placeholder-slate-500 font-medium bg-transparent dark:bg-slate-900 text-sm transition-colors duration-300" 
                     type="email" 
                     placeholder="Enter your email id" 
                     required 

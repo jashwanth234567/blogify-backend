@@ -27,7 +27,7 @@ const SEOCenter = () => {
     };
 
     return (
-        <div className="flex-1 bg-[rgb(219,218,218)] dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 md:p-10 overflow-y-auto font-sans">
+        <div className="flex-1 bg-transparent dark:bg-slate-900 text-slate-800 dark:text-slate-100 p-6 md:p-10 overflow-y-auto font-sans">
             <div className="mb-8">
                 <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                     <span>🔍</span> AI SEO Optimizer Center
@@ -37,7 +37,7 @@ const SEOCenter = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 {/* Inputs card */}
-                <div className="lg:col-span-5 bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-2xl p-6 shadow-lg transition-shadow">
+                <div className="lg:col-span-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-lg transition-shadow">
                     <form onSubmit={handleAudit} className="space-y-6">
                         <div>
                             <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-2">Draft Text Block / Topic Focus</label>
@@ -45,7 +45,7 @@ const SEOCenter = () => {
                                 value={urlText}
                                 onChange={(e) => setUrlText(e.target.value)}
                                 placeholder="Paste draft body text here or write main keyword target..."
-                                className="w-full h-48 bg-[rgb(219,218,218)] dark:bg-slate-900 border border-transparent dark:border-slate-700 rounded-xl p-3 outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all resize-none shadow-lg"
+                                className="w-full h-48 bg-transparent dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all resize-none shadow-lg"
                                 required
                             />
                         </div>
@@ -60,8 +60,8 @@ const SEOCenter = () => {
                 </div>
 
                 {/* Audit results */}
-                <div className="lg:col-span-7 bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-2xl p-6 min-h-[320px] shadow-lg transition-shadow">
-                    <h3 className="text-sm font-bold text-slate-600 dark:text-slate-200 border-b border-transparent dark:border-slate-700 pb-3 mb-6">SEO Checkup Metrics</h3>
+                <div className="lg:col-span-7 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 min-h-[320px] shadow-lg transition-shadow">
+                    <h3 className="text-sm font-bold text-slate-600 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700 pb-3 mb-6">SEO Checkup Metrics</h3>
 
                     {loading ? (
                         <div className="flex flex-col items-center py-16 space-y-4">
@@ -81,11 +81,11 @@ const SEOCenter = () => {
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="p-4 bg-[rgb(219,218,218)] dark:bg-slate-900/50 border border-transparent dark:border-slate-700 rounded-xl shadow-lg">
+                                <div className="p-4 bg-transparent dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg">
                                     <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Keyword density</span>
                                     <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mt-1">{auditResults.keywordDensity}</p>
                                 </div>
-                                <div className="p-4 bg-[rgb(219,218,218)] dark:bg-slate-900/50 border border-transparent dark:border-slate-700 rounded-xl shadow-lg">
+                                <div className="p-4 bg-transparent dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg">
                                     <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Readability Level</span>
                                     <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mt-1">{auditResults.readability}</p>
                                 </div>

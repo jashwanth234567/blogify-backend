@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 
-const Sidebar = ({ collapsed, toggleCollapse }) => {
+const Sidebar = ({ collapsed, toggleCollapse, setMobileDrawerOpen }) => {
     const { isAdmin, isDarkMode } = useAppContext();
 
     const menuItems = [
@@ -26,7 +26,7 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
             style={{
                 width: collapsed ? "72px" : "260px",
                 minWidth: collapsed ? "72px" : "260px",
-                background: isDarkMode ? "#020617" : "rgb(219, 218, 218)",
+                background: isDarkMode ? "#020617" : "#FFFFFF",
                 borderRight: isDarkMode ? "1px solid #1F2937" : "1px solid rgba(148, 163, 184, 0.16)",
                 boxShadow: isDarkMode ? "4px 0 24px rgba(0,0,0,0.3)" : "4px 0 24px rgba(15,23,42,0.02)",
                 display: "flex",
@@ -41,6 +41,7 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
             <button
                 onClick={toggleCollapse}
                 title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+                className="sidebar-collapse-btn"
                 style={{
                     position: "absolute",
                     top: "20px",
@@ -50,7 +51,6 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
                     background: isDarkMode ? "#111827" : "#FFFFFF",
                     border: isDarkMode ? "1.5px solid #1F2937" : "1.5px solid rgba(148, 163, 184, 0.18)",
                     borderRadius: "50%",
-                    display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     cursor: "pointer",
@@ -103,6 +103,14 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
                             <div style={{ fontSize: "10px", color: "#94A3B8", fontWeight: 600, marginTop: "2px" }}>Creator Dashboard</div>
                         </div>
                     </div>
+                    {/* Mobile Close Button */}
+                    <button 
+                        className="md:hidden flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
+                        onClick={() => setMobileDrawerOpen && setMobileDrawerOpen(false)}
+                        aria-label="Close Sidebar"
+                    >
+                        ✕
+                    </button>
                 </div>
             )}
 
@@ -143,6 +151,7 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
                         key={idx}
                         end={item.end}
                         to={item.path}
+                        onClick={() => setMobileDrawerOpen && setMobileDrawerOpen(false)}
                         style={{ textDecoration: "none" }}
                         className={({ isActive }) =>
                             isActive ? "sidebar-link sidebar-link--active" : "sidebar-link"
@@ -183,6 +192,7 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
                 {isAdmin && (
                     <NavLink
                         to="/author/admin-analytics"
+                        onClick={() => setMobileDrawerOpen && setMobileDrawerOpen(false)}
                         style={{ textDecoration: "none" }}
                         className={({ isActive }) =>
                             isActive ? "sidebar-link sidebar-link--active" : "sidebar-link"
@@ -234,6 +244,14 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
             )}
 
             <style>{`
+                .sidebar-collapse-btn {
+                    display: none;
+                }
+                @media (min-width: 768px) {
+                    .sidebar-collapse-btn {
+                        display: flex;
+                    }
+                }
                 .sidebar-link {
                     display: flex;
                     align-items: center;

@@ -110,7 +110,7 @@ const AddBlog = () => {
     }, [])
 
     return (
-        <form onSubmit={onSubmitHandler} className='flex-1 bg-[rgb(219,218,218)] dark:bg-slate-950 text-slate-600 dark:text-slate-300 h-full overflow-y-auto p-8 sm:p-10'>
+        <form onSubmit={onSubmitHandler} className='flex-1 bg-transparent dark:bg-slate-950 text-slate-600 dark:text-slate-300 h-full overflow-y-auto p-8 sm:p-10'>
             <div className='bz-card w-full max-w-3xl p-6 md:p-10 mx-auto border border-slate-200 dark:border-slate-800 shadow-xl bg-white dark:bg-slate-900'>
 
                 <p className="font-semibold text-sm text-slate-700 dark:text-slate-300">Upload thumbnail</p>
@@ -173,7 +173,7 @@ const AddBlog = () => {
                 <div className='max-w-lg h-74 pb-16 sm:pb-10 pt-2 relative'>
                     <div ref={editorRef} className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-md"></div>
                     {loading && (
-                        <div className='absolute right-0 top-0 bottom-0 flex-1 flex items-center justify-center p-10 bg-[rgb(219,218,218)] dark:bg-slate-900 text-slate-800 dark:text-slate-200'>
+                        <div className='absolute right-0 top-0 bottom-0 flex-1 flex items-center justify-center p-10 bg-transparent dark:bg-slate-900 text-slate-800 dark:text-slate-200'>
                             <div className='w-8 h-8 rounded-full border-2 border-t-white animate-spin'></div>
                         </div>)}
                     <button disabled={loading} type='button' onClick={generateContent} className='absolute bottom-2.5 right-2 ml-2 text-xs font-semibold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:shadow-lg hover:shadow-violet-500/25 px-4 py-1.5 rounded-lg transition-all duration-300 cursor-pointer z-30 shadow'>Generate with AI</button>
