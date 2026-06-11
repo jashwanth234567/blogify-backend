@@ -9,7 +9,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Use the correct 1.5-flash model
 const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
+  model: "gemini-3.5-flash",
 });
 
 export const generateBlogContent = async (title) => {
