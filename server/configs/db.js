@@ -6,11 +6,11 @@ const RETRY_DELAY_MS = 3000;
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const connectDB = async () => {
-    const uri = process.env.MONGODB_URI;
+    const uri = process.env.MONGODB_URI || process.env.MONGODB_URL; // Support both variable names for Render compatibility
 
-    // ── Guard: ensure the env var is actually set ──────────────────────────
+    // Guard: ensure the env var is actually set
     if (!uri) {
-        console.error("🚫  MONGODB_URI environment variable is not set!");
+        console.error(`🚫  MongoDB connection string environment variable is not set! Expected MONGODB_URI or MONGODB_URL.`);
         console.error("    → Add it in your Render dashboard under Environment Variables.");
         process.exit(1);
     }

@@ -1,3 +1,7 @@
+import * as GeminiAI from "@google/generative-ai";
+const { GoogleGenerativeAI } = GeminiAI;
+
+
 if (!process.env.GEMINI_API_KEY) {
   console.error('❌ GEMINI_API_KEY is missing! Ensure it is set in .env or Render env vars.');
 }
@@ -119,13 +123,9 @@ export const generateChatReply = async (message, history = []) => {
   try {
     if (!process.env.GEMINI_API_KEY) {
       console.error('❌ GEMINI_API_KEY is missing – cannot generate chat reply');
-      return null;
+      throw new Error('GEMINI_API_KEY is missing');
     }
-      if (!process.env.GEMINI_API_KEY) {
-        console.error('❌ GEMINI_API_KEY is missing – cannot generate chat reply');
-        throw new Error('GEMINI_API_KEY is missing');
-      }
-      let context = "You are a premium AI writing assistant for Blogify SaaS. Help the user with blog ideas, SEO tags, writing, grammar, outline generation, or general queries. Keep replies formatted nicely using markdown.\n\n";
+    let context = "You are a premium AI writing assistant for Blogify SaaS. Help the user with blog ideas, SEO tags, writing, grammar, outline generation, or general queries. Keep replies formatted nicely using markdown.\n\n";
     if (history && history.length > 0) {
       history.forEach(h => {
         context += `${h.role === 'user' ? 'User' : 'Assistant'}: ${h.content || h.text}\n`;
