@@ -97,14 +97,26 @@ export const translateContent = async (req, res) => {
             return res.json({ success: false, message: "Translation failed. Please verify Gemini API key configuration." });
         }
 
+        // Build result object
         const result = {
             title: translatedTitle,
             subTitle: translatedSubTitle,
             description: translatedDesc,
         };
 
-        // Generate audio for the translated description (you can also generate for title/subTitle if needed)
-        const audioData = await generateAudioContent(translatedDesc);
+        // Helper to pick a voice based on target language
+        const voiceForLang = (lang) => {
+          const map = {
+            es: "es-ES-Standard-A", // Spanish
+            fr: "fr-FR-Standard-A", // French
+            de: "de-DE-Standard-A", // German
+            hi: "hi-IN-Standard-A", // Hindi
+          };
+          return map[lang] || "en-US-Standard-A";
+        };
+
+        // Generate audio for the translated description using the appropriate voice
+        const audioData = await generateAudioContent(translatedDesc, voiceForLang(targetLanguage));
         if (audioData) {
             result.audioBase64 = audioData; // data URI for <audio> tag
         }

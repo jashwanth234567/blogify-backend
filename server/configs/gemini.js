@@ -8,6 +8,11 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const model = genAI.getGenerativeModel({
   model: "gemini-3.5-flash",
+  // Faster, lower token usage for text generation
+  generationConfig: {
+    temperature: 0.7,
+    maxOutputTokens: 1024,
+  },
 });
 
 export const generateBlogContent = async (title) => {
@@ -47,6 +52,11 @@ Return ONLY valid JSON:
 
 // 1. Generate Blog Summary helper
 export const generateSummaryContent = async (text) => {
+  // Use a faster config for summaries
+  const summaryModel = genAI.getGenerativeModel({
+    model: "gemini-3.5-flash",
+    generationConfig: { temperature: 0.7, maxOutputTokens: 512 },
+  });
   try {
     const prompt = `
 Provide a brief, concise summary (around 3-4 sentences) of the following article content.
@@ -58,11 +68,17 @@ ${text}
 Return ONLY the plain text summary without any markdown code blocks or HTML.
 `;
 
-    const result = await model.generateContent(prompt);
+    // Add an 8‑second timeout to avoid hanging forever
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Summary generation timed out")), 8000)
+    );
+    const result = await Promise.race([summaryModel.generateContent(prompt), timeout]);
     return result.response.text().trim();
   } catch (error) {
-    console.log("Gemini Summarize Error:", error);
-    return null;
+    console.warn("Gemini Summarize Error (fallback):", error);
+    // Fallback: strip HTML and return first 200 characters
+    const plain = text.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    return plain.slice(0, 200) + (plain.length > 200 ? "…" : "");
   }
 };
 
@@ -96,10 +112,14 @@ export const generateAudioContent = async (text, voiceName = "en-US-Standard-A")
     // Use a model that supports audio generation (flash-tts preview)
     const audioModel = genAI.getGenerativeModel({
       model: "gemini-3.5-flash",
-      // Request audio output if supported; otherwise fallback to text only
-      generationConfig: { responseMimeType: "audio/mp3" },
+      // Request audio output; keep same fast config
+      generationConfig: {
+        responseMimeType: "audio/mp3",
+        temperature: 0.7,
+        maxOutputTokens: 1024,
+      },
     });
-    const prompt = `Speak the following text exactly as is: ${text}`;
+    const prompt = `Speak the following text exactly as is, using voice ${voiceName}: ${text}`;
     const result = await audioModel.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       // Ensure audio response
