@@ -7,7 +7,7 @@ if (!process.env.GEMINI_API_KEY) {
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
+  model: "gemini-3.5-flash",
 });
 
 export const generateBlogContent = async (title) => {
@@ -86,6 +86,32 @@ Return ONLY the translated content. Do NOT wrap in markdown code blocks like \`\
       .trim();
   } catch (error) {
     console.log("Gemini Translate Error:", error);
+    return null;
+  }
+};
+
+// New: Generate audio (TTS) using Gemini's audio modality
+export const generateAudioContent = async (text, voiceName = "en-US-Standard-A") => {
+  try {
+    // Use a model that supports audio generation (flash-tts preview)
+    const audioModel = genAI.getGenerativeModel({
+      model: "gemini-3.5-flash",
+      // Request audio output if supported; otherwise fallback to text only
+      generationConfig: { responseMimeType: "audio/mp3" },
+    });
+    const prompt = `Speak the following text exactly as is: ${text}`;
+    const result = await audioModel.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      // Ensure audio response
+      generationConfig: { responseMimeType: "audio/mp3" },
+    });
+    // The SDK returns a Blob or base64; we convert to base64 string
+    const audioData = await result.response.blob();
+    const arrayBuffer = await audioData.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString("base64");
+    return `data:audio/mp3;base64,${base64}`;
+  } catch (error) {
+    console.error("Gemini TTS Error:", error);
     return null;
   }
 };

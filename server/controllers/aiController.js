@@ -1,4 +1,4 @@
-import { generateBlogContent, generateSummaryContent, translateHtmlContent, suggestSeoTitles, generateChatReply } from "../configs/gemini.js";
+import { generateBlogContent, generateSummaryContent, translateHtmlContent, generateAudioContent, suggestSeoTitles, generateChatReply } from "../configs/gemini.js";
 import AiHistory from "../models/AiHistory.js";
 
 // AI Generate Blog Content
@@ -78,6 +78,12 @@ export const translateContent = async (req, res) => {
         const { title, subTitle, description, targetLanguage } = req.body;
         const userId = req.userId;
 
+        // Ensure the API key is present before proceeding
+        if (!process.env.GEMINI_API_KEY) {
+            console.error('❌ GEMINI_API_KEY missing in translateContent');
+            return res.json({ success: false, message: 'GEMINI_API_KEY missing. Configure it in .env or Render environment.' });
+        }
+
         if (!targetLanguage) {
             return res.json({ success: false, message: "Target language is required" });
         }
@@ -97,6 +103,12 @@ export const translateContent = async (req, res) => {
             description: translatedDesc,
         };
 
+        // Generate audio for the translated description (you can also generate for title/subTitle if needed)
+        const audioData = await generateAudioContent(translatedDesc);
+        if (audioData) {
+            result.audioBase64 = audioData; // data URI for <audio> tag
+        }
+
         // Save to AI History
         await AiHistory.create({
             user: userId,
@@ -107,7 +119,7 @@ export const translateContent = async (req, res) => {
 
         res.json({ success: true, translated: result });
     } catch (error) {
-        console.error(error);
+        console.error("Translation controller error:", error);
         res.json({ success: false, message: error.message });
     }
 };
