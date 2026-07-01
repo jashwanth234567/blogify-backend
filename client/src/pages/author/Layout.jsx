@@ -134,6 +134,17 @@ const Layout = () => {
                                         ))
                                     )}
                                 </div>
+                                <div className="border-t border-slate-100 dark:border-slate-800 p-2.5 text-center">
+                                    <button
+                                        onClick={() => {
+                                            setShowDropdown(false);
+                                            navigate("/notifications");
+                                        }}
+                                        className="text-xs font-semibold text-violet-600 dark:text-violet-400 hover:underline cursor-pointer"
+                                    >
+                                        View all notifications
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>

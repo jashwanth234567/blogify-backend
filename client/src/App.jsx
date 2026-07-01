@@ -2,6 +2,11 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import Blog from "./pages/Blog";
+import Profile from "./pages/Profile";
+import Trending from "./pages/Trending";
+import MostLiked from "./pages/MostLiked";
+import MostViewed from "./pages/MostViewed";
+import NotificationsPage from "./pages/Notifications";
 import Layout from "./pages/author/Layout";
 import Dashboard from "./pages/author/Dashboard";
 import AddBlog from "./pages/author/AddBlog";
@@ -39,6 +44,12 @@ const App = () => {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/blog/:id" element={<Blog />} />
+                <Route path="/profile/:username" element={<Profile />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/trending" element={<Trending />} />
+                <Route path="/most-liked" element={<MostLiked />} />
+                <Route path="/most-viewed" element={<MostViewed />} />
+                <Route path="/notifications" element={<NotificationsPage />} />
                 <Route path="/return-info" element={<ReturnInfo />} />
                 <Route path="/refund-policy" element={<RefundPolicy />} />
                 <Route path="/author" element={token ? <Layout /> : <Login />}>

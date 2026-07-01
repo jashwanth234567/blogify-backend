@@ -11,13 +11,18 @@ import toast from "react-hot-toast";
 
 const Blog = () => {
     const { id } = useParams();
-    const { axios, blogs, fetchBlogs } = useAppContext();
+    const { axios, blogs, fetchBlogs, token, user: currentUser } = useAppContext();
 
     const [data, setData] = useState(null);
     const [comments, setComments] = useState([]);
     const [name, setName] = useState("");
     const [content, setContent] = useState("");
     const [headings, setHeadings] = useState([]);
+
+    // Likes & Saves
+    const [likesCount, setLikesCount] = useState(0);
+    const [isLiked, setIsLiked] = useState(false);
+    const [isSaved, setIsSaved] = useState(false);
 
     // Reading progress
     const [scrollProgress, setScrollProgress] = useState(0);
@@ -175,12 +180,90 @@ const Blog = () => {
         }
     };
 
+    const handleLike = async () => {
+        if (!token) {
+            toast.error("Please login to like posts");
+            return;
+        }
+        try {
+            const endpoint = `/api/posts/${id}/like`;
+            const config = { headers: { Authorization: token } };
+            const { data: res } = isLiked
+                ? await axios.delete(endpoint, config)
+                : await axios.post(endpoint, {}, config);
+            if (res.success) {
+                setIsLiked(!isLiked);
+                setLikesCount(prev => prev + (isLiked ? -1 : 1));
+                toast.success(isLiked ? "Unlike post" : "Liked post");
+            } else {
+                toast.error(res.message);
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
+    };
+
+    const handleSave = async () => {
+        if (!token) {
+            toast.error("Please login to save posts");
+            return;
+        }
+        try {
+            const endpoint = `/api/posts/${id}/save`;
+            const config = { headers: { Authorization: token } };
+            const { data: res } = isSaved
+                ? await axios.delete(endpoint, config)
+                : await axios.post(endpoint, {}, config);
+            if (res.success) {
+                setIsSaved(!isSaved);
+                toast.success(isSaved ? "Removed from saved" : "Saved to bookmarks");
+            } else {
+                toast.error(res.message);
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
+    };
+
     const fetchBlogData = async () => {
         try {
-            const { data } = await axios.get(`/api/blog/published/${id}`);
-            if (data.success && data.blog) {
-                setData(data.blog);
-                setHeadings(parseHeadings(data.blog.description));
+            const { data: res } = await axios.get(`/api/blog/published/${id}`);
+            if (res.success && res.blog) {
+                setData(res.blog);
+                setHeadings(parseHeadings(res.blog.description));
+                
+                // Record view count
+                if (token) {
+                    await axios.post(`/api/posts/${id}/view`, {}, {
+                        headers: { Authorization: token }
+                    });
+                }
+
+                // Check likes and saves
+                if (token && currentUser) {
+                    const { data: likesData } = await axios.get(`/api/posts/${id}/likes`, {
+                        headers: { Authorization: token }
+                    });
+                    if (likesData.success) {
+                        const hasLiked = likesData.likes.some(l => 
+                            (l.user?._id || l.user) === currentUser._id
+                        );
+                        setIsLiked(hasLiked);
+                        setLikesCount(likesData.likes.length);
+                    } else {
+                        setLikesCount(res.blog.likes || 0);
+                    }
+
+                    const { data: savedData } = await axios.get(`/api/posts/saved`, {
+                        headers: { Authorization: token }
+                    });
+                    if (savedData.success) {
+                        const hasSaved = savedData.blogs.some(b => b._id === id);
+                        setIsSaved(hasSaved);
+                    }
+                } else {
+                    setLikesCount(res.blog.likes || 0);
+                }
             } else {
                 // Try to find the blog in local mock data
                 import("../assets/assets").then(({ blog_data }) => {
@@ -189,7 +272,7 @@ const Blog = () => {
                         setData(localBlog);
                         setHeadings(parseHeadings(localBlog.description));
                     } else {
-                        toast.error(data.message || "Blog not found");
+                        toast.error(res.message || "Blog not found");
                     }
                 });
             }
@@ -298,7 +381,29 @@ const Blog = () => {
 
                 {/* Actions row */}
                 <div className="flex flex-wrap items-center justify-center gap-3 pt-4 border-b border-slate-200 dark:border-slate-800 pb-6 transition-colors duration-300">
-                    <span className="text-xs bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 font-bold px-3 py-1 rounded-full border border-slate-250 dark:border-slate-700 transition-colors duration-300">{data?.author?.name || "Anonymous"}</span>
+                    {data?.author && (
+                        <a href={`/profile/${data.author.username || data.author._id}`} className="text-xs bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 font-bold px-3 py-1 rounded-full border border-slate-250 dark:border-slate-700 transition-colors duration-300 hover:text-violet-600 dark:hover:text-violet-400">
+                            👤 {data.author.name}
+                        </a>
+                    )}
+                    
+                    <button
+                        onClick={handleLike}
+                        className="inline-flex items-center gap-1.5 py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white hover:bg-[rgb(219,218,218)] dark:bg-slate-900 text-red-500 font-bold transition-all duration-200 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+                    >
+                        {isLiked ? "❤️" : "🤍"} {likesCount}
+                    </button>
+
+                    <button
+                        onClick={handleSave}
+                        className="inline-flex items-center gap-1.5 py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white hover:bg-[rgb(219,218,218)] dark:bg-slate-900 text-yellow-500 font-bold transition-all duration-200 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+                    >
+                        {isSaved ? "★ Saved" : "☆ Save"}
+                    </button>
+
+                    <span className="inline-flex items-center gap-1.5 py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 font-bold transition-all">
+                        👁 {data.views} Views
+                    </span>
                     
                     <button
                         onClick={() => {

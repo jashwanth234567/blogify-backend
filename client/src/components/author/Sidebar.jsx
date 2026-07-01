@@ -7,6 +7,11 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
 
     const menuItems = [
         { path: "/author",                  label: "Dashboard",          icon: "📊", end: true },
+        { path: "/profile",                 label: "My Profile",         icon: "👤" },
+        { path: "/trending",                label: "Trending",           icon: "🔥" },
+        { path: "/most-liked",              label: "Most Liked",         icon: "❤️" },
+        { path: "/most-viewed",             label: "Most Viewed",        icon: "👁" },
+        { path: "/notifications",           label: "Notifications",      icon: "🔔" },
         { path: "/author/content-studio",   label: "AI Content Studio",  icon: "🎙️" },
         { path: "/author/add-blog",         label: "AI Blog Generator",  icon: "✨" },
         { path: "/author/chat-assistant",   label: "AI Chat Assistant",  icon: "💬" },

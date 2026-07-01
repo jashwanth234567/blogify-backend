@@ -10,6 +10,7 @@ const blogSchema = new mongoose.Schema(
         image: { type: String, required: true },
         isPublished: { type: Boolean, required: true },
         views: { type: Number, default: 0 },
+        likes: { type: Number, default: 0 },
         isAiGenerated: { type: Boolean, default: false },
     },
     { timestamps: true }
