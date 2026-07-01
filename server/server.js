@@ -23,7 +23,7 @@ connectCloudinary();
 
 // Middlewares
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ strict: false }));
 
 // Serve React build static files (if they exist)
 const clientBuildPath = path.resolve(__dirname, "..", "client", "dist");

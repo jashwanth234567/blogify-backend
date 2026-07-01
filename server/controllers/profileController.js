@@ -7,6 +7,17 @@ import SavedPost from "../models/SavedPost.js";
 import { v2 as cloudinary } from "cloudinary";
 import { logActivity } from "../middleware/activityLogger.js";
 
+const voiceForLang = (lang) => {
+  const map = {
+    es: "es-ES-Standard-A", // Spanish
+    fr: "fr-FR-Standard-A", // French
+    de: "de-DE-Standard-A", // German
+    hi: "hi-IN-Standard-A", // Hindi
+    te: "te-IN-Standard-A", // Telugu
+  };
+  return map[lang] || "en-US-Standard-A";
+};
+
 // GET /api/profile/:username
 export const getProfile = async (req, res) => {
   try {
