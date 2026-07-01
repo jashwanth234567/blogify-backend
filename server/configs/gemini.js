@@ -84,6 +84,10 @@ Return ONLY the plain text summary without any markdown code blocks or HTML.
 
 // 2. Translate HTML helper
 export const translateHtmlContent = async (text, targetLanguage) => {
+  const translateModel = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    generationConfig: { temperature: 0.3 },
+  });
   try {
     const prompt = `
 Translate the following HTML/text content into ${targetLanguage}.
@@ -95,7 +99,7 @@ ${text}
 Return ONLY the translated content. Do NOT wrap in markdown code blocks like \`\`\`html or \`\`\`.
 `;
 
-    const result = await model.generateContent(prompt);
+    const result = await translateModel.generateContent(prompt);
     return result.response.text()
       .replace(/```html/g, "")
       .replace(/```/g, "")
