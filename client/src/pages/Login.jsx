@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 
 const Login = () => {
-    const { axios, setToken } = useAppContext();
+    const { axios, setToken, navigate } = useAppContext();
     const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
@@ -25,6 +25,7 @@ const Login = () => {
                 localStorage.setItem("token", data.token);
                 axios.defaults.headers.common["Authorization"] = data.token;
                 toast.success("Logged in successfully!");
+                navigate("/"); // Navigate to homescreen
             } else {
                 toast.error(data.message || "Invalid credentials");
             }
