@@ -8,8 +8,8 @@ import Loader from "../components/Loader";
 import BlogCard from "../components/BlogCard";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
-import { Capacitor } from '@capacitor/core';
-import { TextToSpeech } from '@capacitor-community/text-to-speech';
+
+
 
 const Blog = () => {
     const { id } = useParams();
