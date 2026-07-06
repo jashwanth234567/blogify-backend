@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema(
     website: { type: String, default: "" },
     location: { type: String, default: "" },
     verified: { type: Boolean, default: false },
+    isAdmin: { type: Boolean, default: false },
     followersCount: { type: Number, default: 0 },
     followingCount: { type: Number, default: 0 },
     totalLikesReceived: { type: Number, default: 0 },

@@ -7,9 +7,14 @@ import connectDB from "./configs/db.js";
 import blogRouter from "./routes/blogRoutes.js";
 import commentRouter from "./routes/commentRoutes.js";
 import userRouter from "./routes/userRoutes.js";
-import notificationRouter from "./routes/notificationRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+
+// ... existing imports ...
+// After existing route mounts add:
+app.use("/api/admin", adminRoutes);
 import aiRouter from "./routes/aiRoutes.js";
 import profileRouter from "./routes/profileRoutes.js";
+import historyRouter from "./routes/historyRoutes.js";
 import postsRouter from "./routes/postsRoutes.js";
 import connectCloudinary from "./configs/cloudinary.js";
 
@@ -39,6 +44,8 @@ app.use("/api/posts", postsRouter);
 app.use("/api/notification", notificationRouter);
 app.use("/api/notifications", notificationRouter); // support pluralized notifications endpoint
 app.use("/api/ai", aiRouter);
+app.use("/api/history", historyRouter);
+app.use("/api/admin", adminRoutes);
 
 // Fallback for API routes (if not found, return 404 instead of serving index.html)
 app.use("/api", (req, res) => {
