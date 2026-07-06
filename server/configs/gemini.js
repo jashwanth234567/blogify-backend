@@ -7,7 +7,7 @@ if (!process.env.GEMINI_API_KEY) {
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
+  model: "gemini-3.1-flash-lite",
   // Faster, lower token usage for text generation
   generationConfig: {
     temperature: 0.7,
@@ -54,7 +54,7 @@ Return ONLY valid JSON:
 export const generateSummaryContent = async (text) => {
   // Use a faster config for summaries
   const summaryModel = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
+    model: "gemini-3.1-flash-lite",
     generationConfig: { temperature: 0.7, maxOutputTokens: 512 },
   });
   try {
@@ -111,7 +111,7 @@ export const generateAudioContent = async (text, voiceName = "en-US-Standard-A")
   try {
     // Use a model that supports audio generation (flash-tts preview)
     const audioModel = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-3.1-flash-lite",
       // Request audio output; keep same fast config
       generationConfig: {
         responseMimeType: "audio/mp3",

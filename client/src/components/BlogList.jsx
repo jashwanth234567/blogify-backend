@@ -33,11 +33,27 @@ const BlogList = () => {
                 ))}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-24 mx-8 sm:mx-16 xl:mx-40">
-                {filteredBlogs()
-                    .filter((blog) => (menu === "All" ? true : blog.category === menu))
-                    .map((blog) => (
-                        <BlogCard key={blog._id} blog={blog} />
-                    ))}
+                {blogs.length === 0 ? (
+                    // Skeleton Loaders
+                    Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="animate-pulse bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 h-[350px] shadow-[0_1px_2px_rgba(0,0,0,0.05)] flex flex-col justify-between">
+                            <div className="w-full h-44 bg-slate-200 dark:bg-slate-800 rounded-xl mb-4"></div>
+                            <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded w-3/4 mb-2"></div>
+                            <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-full mb-1"></div>
+                            <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-5/6 mb-4"></div>
+                            <div className="flex justify-between items-center mt-auto border-t border-slate-100 dark:border-slate-800 pt-3">
+                                <div className="h-6 w-20 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
+                                <div className="h-6 w-20 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    filteredBlogs()
+                        .filter((blog) => (menu === "All" ? true : blog.category === menu))
+                        .map((blog) => (
+                            <BlogCard key={blog._id} blog={blog} />
+                        ))
+                )}
             </div>
         </div>
     );
