@@ -48,7 +48,20 @@ const connectDB = async () => {
   console.error("   2. Is 0.0.0.0/0 whitelisted in MongoDB Atlas Network Access?");
   console.error("   3. Is the Atlas database user password correct in the URI?");
   console.error("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-  process.exit(1);
+  // Attempt fallback to a local MongoDB instance
+  const localUri = process.env.LOCAL_MONGODB_URI || "mongodb://127.0.0.1:27017/blogify";
+  try {
+    await mongoose.connect(localUri, { serverSelectionTimeoutMS: 5000 });
+    console.log("✅ Database Connected (Local fallback)");
+    mongoose.connection.on("disconnected", () =>
+      console.warn("⚠️  MongoDB disconnected. Reconnecting..."));
+    mongoose.connection.on("error", (err) =>
+      console.error("❌ MongoDB error (local):", err.message));
+    return; // success – fallback connection established
+  } catch (fallbackError) {
+    console.error(`❌ Local MongoDB fallback failed: ${fallbackError.message}`);
+    process.exit(1);
+  }
 };
 
 export default connectDB;

@@ -111,6 +111,8 @@ export const translateContent = async (req, res) => {
             fr: "fr-FR-Standard-A", // French
             de: "de-DE-Standard-A", // German
             hi: "hi-IN-Standard-A", // Hindi
+            ta: "ta-IN-Standard-A", // Tamil
+            te: "te-IN-Standard-A", // Telugu
           };
           return map[lang] || "en-US-Standard-A";
         };
