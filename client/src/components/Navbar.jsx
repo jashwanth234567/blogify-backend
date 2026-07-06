@@ -38,7 +38,7 @@ const Navbar = () => {
                     aria-label="Toggle Dark Mode"
                 >
                     {isDarkMode ? (
-                        <span className="text-xl leading-none flex items-center justify-center">☀️</span>
+                        <span className="text-xl leading-none flex items-center justify-center">🔆</span>
                     ) : (
                         <span className="text-xl leading-none flex items-center justify-center">🌙</span>
                     )}
