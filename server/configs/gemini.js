@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import * as googleTTS from 'google-tts-api';
 
 if (!process.env.GEMINI_API_KEY) {
   console.error('❌ GEMINI_API_KEY is missing! Ensure it is set in .env or Render env vars.');
@@ -106,32 +107,36 @@ Return ONLY the translated content. Do NOT wrap in markdown code blocks like \`\
   }
 };
 
-// New: Generate audio (TTS) using Gemini's audio modality
-export const generateAudioContent = async (text, voiceName = "en-US-Standard-A") => {
+export const generateAudioContent = async (text, langCode = "en") => {
   try {
-    // Use a model that supports audio generation (flash-tts preview)
-    const audioModel = genAI.getGenerativeModel({
-      model: "gemini-3.1-flash-lite",
-      // Request audio output; keep same fast config
-      generationConfig: {
-        responseMimeType: "audio/mp3",
-        temperature: 0.7,
-        maxOutputTokens: 1024,
-      },
+    let lang = langCode.toLowerCase();
+    if (lang.includes("hi")) lang = "hi";
+    else if (lang.includes("te")) lang = "te";
+    else if (lang.includes("ta")) lang = "ta";
+    else if (lang.includes("es")) lang = "es";
+    else if (lang.includes("fr")) lang = "fr";
+    else lang = "en";
+
+    // Get array of base64 chunks
+    const results = await googleTTS.getAllAudioBase64(text, {
+      lang: lang,
+      slow: false,
+      host: 'https://translate.google.com',
+      splitPunct: ',.?',
     });
-    const prompt = `Speak the following text exactly as is, using voice ${voiceName}: ${text}`;
-    const result = await audioModel.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      // Ensure audio response
-      generationConfig: { responseMimeType: "audio/mp3" },
-    });
-    // The SDK returns a Blob or base64; we convert to base64 string
-    const audioData = await result.response.blob();
-    const arrayBuffer = await audioData.arrayBuffer();
-    const base64 = Buffer.from(arrayBuffer).toString("base64");
-    return `data:audio/mp3;base64,${base64}`;
+
+    if (!results || results.length === 0) return null;
+
+    // Convert all base64 chunks to Buffers
+    const buffers = results.map(r => Buffer.from(r.base64, 'base64'));
+    
+    // MP3 files can be seamlessly concatenated byte-by-byte!
+    const combinedBuffer = Buffer.concat(buffers);
+    const finalBase64 = combinedBuffer.toString('base64');
+    
+    return `data:audio/mp3;base64,${finalBase64}`;
   } catch (error) {
-    console.error("Gemini TTS Error:", error);
+    console.error("Google TTS Error:", error);
     return null;
   }
 };
