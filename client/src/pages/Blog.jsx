@@ -8,6 +8,8 @@ import Loader from "../components/Loader";
 import BlogCard from "../components/BlogCard";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
+import { Capacitor } from '@capacitor/core';
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
 
 const Blog = () => {
     const { id } = useParams();
@@ -42,6 +44,7 @@ const Blog = () => {
     const [speechStatus, setSpeechStatus] = useState("Idle");
     const [playbackRate, setPlaybackRate] = useState(1);
     const [showAudioPanel, setShowAudioPanel] = useState(false);
+    const [audioInstance, setAudioInstance] = useState(null);
 
     const calculateReadTime = (htmlContent) => {
         if (!htmlContent) return 0;
@@ -76,33 +79,113 @@ const Blog = () => {
         return textSource.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
     };
 
-    const playSpeech = () => {
+    const playSpeech = async () => {
+        if (translatedContent && translatedContent.audioBase64) {
+            if (audioInstance) {
+                audioInstance.playbackRate = playbackRate;
+                audioInstance.play();
+                setSpeechStatus("Speaking");
+                setShowAudioPanel(true);
+                return;
+            }
+            
+            const audio = new Audio(translatedContent.audioBase64);
+            audio.playbackRate = playbackRate;
+            audio.onended = () => { setSpeechStatus("Idle"); setAudioInstance(null); };
+            audio.onerror = () => { setSpeechStatus("Idle"); setAudioInstance(null); };
+            audio.play();
+            setAudioInstance(audio);
+            setSpeechStatus("Speaking");
+            setShowAudioPanel(true);
+            return;
+        }
+
         const text = getCleanText();
         if (!text) return;
-        window.speechSynthesis.cancel();
+        
+        const langMap = {
+            "Hindi": "hi-IN",
+            "Telugu": "te-IN",
+            "Tamil": "ta-IN",
+            "Spanish": "es-ES",
+            "French": "fr-FR",
+            "Original": "en-US"
+        };
+        const lang = langMap[currentLanguage] || "en-US";
 
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = playbackRate;
-        utterance.onend = () => setSpeechStatus("Idle");
-        utterance.onerror = () => setSpeechStatus("Idle");
+        if (Capacitor.isNativePlatform()) {
+            try {
+                await TextToSpeech.stop();
+                setSpeechStatus("Speaking");
+                setShowAudioPanel(true);
+                await TextToSpeech.speak({
+                    text: text,
+                    lang: lang,
+                    rate: playbackRate,
+                    pitch: 1.0,
+                    category: 'ambient',
+                });
+                setSpeechStatus("Idle");
+            } catch (error) {
+                console.error("Capacitor TTS Error", error);
+                setSpeechStatus("Idle");
+            }
+        } else {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = playbackRate;
+            utterance.lang = lang;
+            utterance.onend = () => setSpeechStatus("Idle");
+            utterance.onerror = () => setSpeechStatus("Idle");
 
-        window.speechSynthesis.speak(utterance);
-        setSpeechStatus("Speaking");
-        setShowAudioPanel(true);
+            window.speechSynthesis.speak(utterance);
+            setSpeechStatus("Speaking");
+            setShowAudioPanel(true);
+        }
     };
 
-    const pauseSpeech = () => {
-        window.speechSynthesis.pause();
-        setSpeechStatus("Paused");
+    const pauseSpeech = async () => {
+        if (audioInstance) {
+            audioInstance.pause();
+            setSpeechStatus("Paused");
+            return;
+        }
+        if (Capacitor.isNativePlatform()) {
+            await TextToSpeech.stop();
+            setSpeechStatus("Idle");
+        } else {
+            window.speechSynthesis.pause();
+            setSpeechStatus("Paused");
+        }
     };
 
     const resumeSpeech = () => {
-        window.speechSynthesis.resume();
-        setSpeechStatus("Speaking");
+        if (audioInstance) {
+            audioInstance.play();
+            setSpeechStatus("Speaking");
+            return;
+        }
+        if (Capacitor.isNativePlatform()) {
+            playSpeech();
+        } else {
+            window.speechSynthesis.resume();
+            setSpeechStatus("Speaking");
+        }
     };
 
-    const stopSpeech = () => {
-        window.speechSynthesis.cancel();
+    const stopSpeech = async () => {
+        if (audioInstance) {
+            audioInstance.pause();
+            audioInstance.currentTime = 0;
+            setAudioInstance(null);
+            setSpeechStatus("Idle");
+            return;
+        }
+        if (Capacitor.isNativePlatform()) {
+            await TextToSpeech.stop();
+        } else {
+            window.speechSynthesis.cancel();
+        }
         setSpeechStatus("Idle");
     };
 
@@ -150,6 +233,12 @@ const Blog = () => {
         }
 
         if (speechStatus !== "Idle") stopSpeech();
+        
+        // Reset old audio when switching languages
+        if (audioInstance) {
+            audioInstance.pause();
+            setAudioInstance(null);
+        }
 
         if (translationsCache[lang]) {
             setTranslatedContent(translationsCache[lang]);
@@ -328,7 +417,14 @@ const Blog = () => {
         window.addEventListener("scroll", handleScroll);
         return () => {
             window.removeEventListener("scroll", handleScroll);
-            window.speechSynthesis.cancel();
+            if (audioInstance) {
+                audioInstance.pause();
+            }
+            if (Capacitor.isNativePlatform()) {
+                TextToSpeech.stop().catch(console.error);
+            } else {
+                window.speechSynthesis.cancel();
+            }
         };
     }, [id]);
 
