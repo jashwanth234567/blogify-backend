@@ -33,7 +33,8 @@ const Navbar = () => {
             <div className="flex items-center gap-4">
                 <button
                     onClick={toggleDarkMode}
-                    className="w-11 aspect-square shrink-0 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
+                    style={{ width: '44px', height: '44px', minWidth: '44px', minHeight: '44px', flexShrink: 0, padding: 0 }}
+                    className="flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
                     aria-label="Toggle Dark Mode"
                 >
                     {isDarkMode ? (
@@ -52,7 +53,8 @@ const Navbar = () => {
                     <div className="relative" ref={dropdownRef}>
                         <button
                             onClick={() => setShowDropdown(!showDropdown)}
-                            className="w-11 aspect-square shrink-0 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] relative"
+                            style={{ width: '44px', height: '44px', minWidth: '44px', minHeight: '44px', flexShrink: 0, padding: 0 }}
+                            className="flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] relative"
                             aria-label="Notifications"
                         >
                             <svg className={`w-5 h-5 ${unreadCount > 0 ? 'animate-bounce' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
