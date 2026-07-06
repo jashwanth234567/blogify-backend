@@ -12,7 +12,10 @@ import Dashboard from "./pages/author/Dashboard";
 import AddBlog from "./pages/author/AddBlog";
 import ListBlog from "./pages/author/ListBlog";
 import Comments from "./pages/author/Comments";
-import Login from "./components/author/Login";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import UserDashboard from "./pages/Dashboard";
 import ReturnInfo from "./pages/ReturnInfo";
 import RefundPolicy from "./pages/RefundPolicy";
 import ActivityLogs from "./pages/author/ActivityLogs";
@@ -52,6 +55,10 @@ const App = () => {
                 <Route path="/notifications" element={<NotificationsPage />} />
                 <Route path="/return-info" element={<ReturnInfo />} />
                 <Route path="/refund-policy" element={<RefundPolicy />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/dashboard" element={<UserDashboard />} />
                 <Route path="/author" element={token ? <Layout /> : <Login />}>
                     <Route index element={<Dashboard />} />
                     <Route path="add-blog" element={<AddBlog />} />

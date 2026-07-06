@@ -41,4 +41,40 @@ router.post('/refresh', protect, async (req, res) => {
  res.json({ success: true, token });
 });
 
+import History from "../models/history.js";
+
+router.get('/activities', protect, async (req, res) => {
+  if (!req.isAdmin) return res.status(403).json({ success: false, message: 'Access denied' });
+
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || '';
+    
+    // Construct search filter
+    const query = {};
+    if (search) {
+      query.action = { $regex: search, $options: 'i' };
+    }
+
+    const activities = await History.find(query)
+      .populate('user', 'name username email image')
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const total = await History.countDocuments(query);
+
+    res.json({
+      success: true,
+      activities,
+      total,
+      page,
+      pages: Math.ceil(total / limit)
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 export default router;

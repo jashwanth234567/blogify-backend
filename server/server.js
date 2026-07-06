@@ -9,13 +9,13 @@ import commentRouter from "./routes/commentRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
-// ... existing imports ...
-// After existing route mounts add:
-app.use("/api/admin", adminRoutes);
+import cookieParser from "cookie-parser";
+import authRouter from "./routes/authRoutes.js";
 import aiRouter from "./routes/aiRoutes.js";
 import profileRouter from "./routes/profileRoutes.js";
 import historyRouter from "./routes/historyRoutes.js";
 import postsRouter from "./routes/postsRoutes.js";
+import notificationRouter from "./routes/notificationRoutes.js";
 import connectCloudinary from "./configs/cloudinary.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -27,14 +27,16 @@ await connectDB();
 connectCloudinary();
 
 // Middlewares
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ strict: false }));
+app.use(cookieParser());
 
 // Serve React build static files (if they exist)
 const clientBuildPath = path.resolve(__dirname, "..", "client", "dist");
 app.use(express.static(clientBuildPath));
 
 // API Routes
+app.use("/api/auth", authRouter);
 app.use("/api/blog", blogRouter);
 app.use("/api/comment", commentRouter);
 app.use("/api/user", userRouter);

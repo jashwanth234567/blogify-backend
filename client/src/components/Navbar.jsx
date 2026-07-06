@@ -145,7 +145,7 @@ const Navbar = () => {
                     </div>
                 )}
 
-                <button onClick={() => navigate("/author")} className="group flex items-center gap-2 rounded-xl text-sm font-bold cursor-pointer bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-8 py-2.5 shadow-[0_4px_12px_rgba(124,58,237,0.2)] hover:shadow-[0_6px_20px_rgba(124,58,237,0.3)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300">
+                <button onClick={() => navigate(token ? "/dashboard" : "/login")} className="group flex items-center gap-2 rounded-xl text-sm font-bold cursor-pointer bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-8 py-2.5 shadow-[0_4px_12px_rgba(124,58,237,0.2)] hover:shadow-[0_6px_20px_rgba(124,58,237,0.3)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300">
                     {token ? "Dashboard" : "Login"}
                     <img src={assets.arrow} className="w-3 transition-transform duration-300 group-hover:translate-x-1" alt="arrow" />
                 </button>

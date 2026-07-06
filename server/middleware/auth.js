@@ -2,7 +2,14 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
 export const protect = async (req, res, next) => {
-    const token = req.headers.authorization;
+    let token = req.headers.authorization;
+    
+    // Check cookies if header is missing
+    if (!token && req.cookies && req.cookies.auth_token) {
+        token = req.cookies.auth_token;
+    } else if (token && token.startsWith('Bearer ')) {
+        token = token.split(' ')[1];
+    }
 
     if (!token) {
         return res.json({ success: false, message: "Not Authorized" });

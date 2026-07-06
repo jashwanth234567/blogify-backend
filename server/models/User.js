@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
     totalLikesReceived: { type: Number, default: 0 },
     totalViewsReceived: { type: Number, default: 0 },
     totalCommentsReceived: { type: Number, default: 0 },
+    lastLogin: { type: Date },
     privacySettings: {
       isPrivate: { type: Boolean, default: false }
     },

@@ -270,3 +270,32 @@ export const uploadCover = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
+// PUT /api/profile/change-password
+export const changePassword = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    const bcrypt = (await import("bcryptjs")).default;
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.json({ success: false, message: "Incorrect current password" });
+    }
+
+    const salt = await bcrypt.genSalt(12);
+    user.password = await bcrypt.hash(newPassword, salt);
+    await user.save();
+
+    await logActivity(userId, "password_change", "Changed account password");
+
+    res.json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
