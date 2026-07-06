@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 
 const Login = () => {
-    const { axios, setToken, navigate } = useAppContext();
+    const { axios, setToken, setUser, navigate } = useAppContext();
     const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
@@ -22,6 +22,7 @@ const Login = () => {
             });
             if (data.success) {
                 setToken(data.token);
+                setUser(data.user);
                 localStorage.setItem("token", data.token);
                 axios.defaults.headers.common["Authorization"] = data.token;
                 toast.success("Logged in successfully!");

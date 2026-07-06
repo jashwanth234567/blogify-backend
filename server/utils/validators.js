@@ -25,5 +25,4 @@ export const resetPasswordValidator = [
     .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter')
     .matches(/[0-9]/).withMessage('Password must contain at least one number')
     .matches(/[\W_]/).withMessage('Password must contain at least one special character'),
-  body('otp').trim().isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits'),
 ];

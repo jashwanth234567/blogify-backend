@@ -33,11 +33,26 @@ const BlogList = () => {
                 ))}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-24 mx-8 sm:mx-16 xl:mx-40">
-                {filteredBlogs()
-                    .filter((blog) => (menu === "All" ? true : blog.category === menu))
-                    .map((blog) => (
-                        <BlogCard key={blog._id} blog={blog} />
-                    ))}
+                {blogs.length === 0 ? (
+                    Array.from({ length: 6 }).map((_, index) => (
+                        <div key={index} className="animate-pulse bg-white/60 dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/50 rounded-3xl p-5 w-full">
+                            <div className="w-full h-[220px] bg-slate-200/60 dark:bg-slate-800/60 rounded-2xl mb-5"></div>
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="w-6 h-6 rounded-full bg-slate-200/60 dark:bg-slate-800/60"></div>
+                                <div className="h-4 bg-slate-200/60 dark:bg-slate-800/60 rounded-md w-1/4"></div>
+                            </div>
+                            <div className="h-7 bg-slate-200/60 dark:bg-slate-800/60 rounded-xl mb-3 w-5/6"></div>
+                            <div className="h-4 bg-slate-200/60 dark:bg-slate-800/60 rounded-md mb-2 w-full"></div>
+                            <div className="h-4 bg-slate-200/60 dark:bg-slate-800/60 rounded-md mb-5 w-4/5"></div>
+                        </div>
+                    ))
+                ) : (
+                    filteredBlogs()
+                        .filter((blog) => (menu === "All" ? true : blog.category === menu))
+                        .map((blog) => (
+                            <BlogCard key={blog._id} blog={blog} />
+                        ))
+                )}
             </div>
         </div>
     );

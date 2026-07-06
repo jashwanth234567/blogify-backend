@@ -20,36 +20,19 @@ const logHistory = async (userId, action, details) => {
   }
 };
 
-// @route   POST /api/auth/register-request
-// @desc    Send OTP to email for registration
-router.post('/register-request', otpLimiter, async (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ success: false, message: 'Email is required' });
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ success: false, message: 'User already exists' });
 
-    await generateAndSendOtp(email, 'register');
-    res.json({ success: true, message: 'OTP sent to email' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-// @route   POST /api/auth/register-verify
-// @desc    Verify OTP and register user
-router.post('/register-verify', registerValidator, async (req, res) => {
+// @route   POST /api/auth/register
+// @desc    Register user
+router.post('/register', registerValidator, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
 
   try {
-    const { name, username, email, password, otp } = req.body;
+    const { name, username, email, password } = req.body;
 
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) return res.status(400).json({ success: false, message: 'Email or Username already taken' });
-
-    await verifyOtp(email, otp, 'register');
 
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
@@ -122,34 +105,19 @@ router.post('/login', loginLimiter, loginValidator, async (req, res) => {
   }
 });
 
-// @route   POST /api/auth/forgot-request
-// @desc    Send OTP to email for password reset
-router.post('/forgot-request', otpLimiter, async (req, res) => {
-  try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ success: false, message: 'User not found' });
 
-    await generateAndSendOtp(email, 'reset');
-    res.json({ success: true, message: 'OTP sent to email' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
 
-// @route   POST /api/auth/forgot-verify
-// @desc    Verify OTP and reset password
-router.post('/forgot-verify', resetPasswordValidator, async (req, res) => {
+// @route   POST /api/auth/forgot-password
+// @desc    Reset password directly
+router.post('/forgot-password', resetPasswordValidator, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
 
   try {
-    const { email, otp, password } = req.body;
+    const { email, password } = req.body;
 
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ success: false, message: 'User not found' });
-
-    await verifyOtp(email, otp, 'reset');
 
     const salt = await bcrypt.genSalt(12);
     user.password = await bcrypt.hash(password, salt);

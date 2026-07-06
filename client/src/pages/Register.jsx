@@ -10,15 +10,11 @@ const Register = () => {
     const [name, setName] = useState("");
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
-    const [otp, setOtp] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     
     const [showPassword, setShowPassword] = useState(false);
-    const [otpSent, setOtpSent] = useState(false);
-    const [otpLoading, setOtpLoading] = useState(false);
     const [registerLoading, setRegisterLoading] = useState(false);
-    const [cooldown, setCooldown] = useState(0);
 
     // Password strength states
     const [strength, setStrength] = useState({
@@ -30,13 +26,7 @@ const Register = () => {
         hasMinLength: false
     });
 
-    useEffect(() => {
-        let timer;
-        if (cooldown > 0) {
-            timer = setTimeout(() => setCooldown(prev => prev - 1), 1000);
-        }
-        return () => clearTimeout(timer);
-    }, [cooldown]);
+
 
     useEffect(() => {
         const hasUpper = /[A-Z]/.test(password);
@@ -55,30 +45,11 @@ const Register = () => {
         setStrength({ score, hasUpper, hasLower, hasNumber, hasSpecial, hasMinLength });
     }, [password]);
 
-    const handleSendOtp = async () => {
-        if (!email) {
-            return toast.error("Please enter email to send OTP");
-        }
-        setOtpLoading(true);
-        try {
-            const { data } = await axios.post("/api/auth/register-request", { email });
-            if (data.success) {
-                setOtpSent(true);
-                setCooldown(60);
-                toast.success("OTP sent to your email!");
-            } else {
-                toast.error(data.message);
-            }
-        } catch (error) {
-            toast.error(error.response?.data?.message || error.message);
-        } finally {
-            setOtpLoading(false);
-        }
-    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!name || !username || !email || !password || !otp) {
+        if (!name || !username || !email || !password) {
             return toast.error("All fields are required");
         }
         if (password !== confirmPassword) {
@@ -90,12 +61,11 @@ const Register = () => {
 
         setRegisterLoading(true);
         try {
-            const { data } = await axios.post("/api/auth/register-verify", {
+            const { data } = await axios.post("/api/auth/register", {
                 name,
                 username,
                 email,
-                password,
-                otp
+                password
             });
             if (data.success) {
                 toast.success("Registration successful! Redirecting to login...");
@@ -161,48 +131,15 @@ const Register = () => {
                         </div>
                         <div className="flex flex-col gap-1.5 mb-3">
                             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Email</label>
-                            <div className="flex gap-2">
-                                <input 
-                                    onChange={(e) => setEmail(e.target.value)} 
-                                    value={email} 
-                                    type="email" 
-                                    required 
-                                    placeholder="user@example.com" 
-                                    className="flex-1 border border-transparent bg-white/90 dark:bg-slate-800/90 rounded-xl p-2.5 outline-none focus:ring-4 focus:ring-violet-500/10 focus:border-violet-400 transition-all duration-300 text-sm placeholder-slate-400 dark:text-slate-100" 
-                                />
-                                <button
-                                    type="button"
-                                    onClick={handleSendOtp}
-                                    disabled={otpLoading || cooldown > 0}
-                                    className="px-4 py-2 text-xs font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-xl disabled:bg-violet-400 cursor-pointer flex items-center justify-center transition-colors min-w-[90px]"
-                                >
-                                    {otpLoading ? (
-                                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                                    ) : cooldown > 0 ? (
-                                        `${cooldown}s`
-                                    ) : otpSent ? (
-                                        "Resend"
-                                    ) : (
-                                        "Send OTP"
-                                    )}
-                                </button>
-                            </div>
+                            <input 
+                                onChange={(e) => setEmail(e.target.value)} 
+                                value={email} 
+                                type="email" 
+                                required 
+                                placeholder="user@example.com" 
+                                className="border border-transparent bg-white/90 dark:bg-slate-800/90 rounded-xl p-2.5 outline-none focus:ring-4 focus:ring-violet-500/10 focus:border-violet-400 transition-all duration-300 text-sm placeholder-slate-400 dark:text-slate-100" 
+                            />
                         </div>
-
-                        {otpSent && (
-                            <div className="flex flex-col gap-1.5 mb-3 animate-fade-in">
-                                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">OTP Code</label>
-                                <input 
-                                    onChange={(e) => setOtp(e.target.value)} 
-                                    value={otp} 
-                                    type="text" 
-                                    required 
-                                    maxLength="6"
-                                    placeholder="6-digit OTP" 
-                                    className="border border-transparent bg-white/90 dark:bg-slate-800/90 rounded-xl p-2.5 outline-none focus:ring-4 focus:ring-violet-500/10 focus:border-violet-400 transition-all duration-300 text-sm tracking-[5px] text-center placeholder-slate-400 dark:text-slate-100" 
-                                />
-                            </div>
-                        )}
 
                         <div className="flex flex-col gap-1.5 mb-3 relative">
                             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Password</label>
