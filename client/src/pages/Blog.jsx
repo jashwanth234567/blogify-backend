@@ -132,6 +132,8 @@ const Blog = () => {
         }
     };
 
+    const isNative = () => typeof Capacitor !== 'undefined' && Capacitor?.isNativePlatform && Capacitor.isNativePlatform();
+
     const playSpeech = async () => {
         if (audioInstance) {
             audioInstance.playbackRate = playbackRate;
@@ -147,7 +149,7 @@ const Blog = () => {
             return;
         }
 
-        if (Capacitor.isNativePlatform()) {
+        if (isNative()) {
             try {
                 await TextToSpeech.stop();
                 setSpeechStatus("Speaking");
@@ -176,11 +178,11 @@ const Blog = () => {
             setSpeechStatus("Paused");
             return;
         }
-        if (Capacitor.isNativePlatform()) {
+        if (isNative()) {
             await TextToSpeech.stop();
             setSpeechStatus("Idle");
         } else {
-            window.speechSynthesis.pause();
+            if ('speechSynthesis' in window) window.speechSynthesis.pause();
             setSpeechStatus("Paused");
         }
     };
@@ -191,10 +193,10 @@ const Blog = () => {
             setSpeechStatus("Speaking");
             return;
         }
-        if (Capacitor.isNativePlatform()) {
+        if (isNative()) {
             playSpeech();
         } else {
-            window.speechSynthesis.resume();
+            if ('speechSynthesis' in window) window.speechSynthesis.resume();
             setSpeechStatus("Speaking");
         }
     };
@@ -207,10 +209,10 @@ const Blog = () => {
             setSpeechStatus("Idle");
             return;
         }
-        if (Capacitor.isNativePlatform()) {
+        if (isNative()) {
             await TextToSpeech.stop();
         } else {
-            window.speechSynthesis.cancel();
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         }
         setSpeechStatus("Idle");
     };
@@ -446,9 +448,9 @@ const Blog = () => {
             if (audioInstance) {
                 audioInstance.pause();
             }
-            if (Capacitor.isNativePlatform()) {
+            if (isNative()) {
                 TextToSpeech.stop().catch(console.error);
-            } else {
+            } else if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
             }
         };
