@@ -354,13 +354,15 @@ const Blog = () => {
         }
     };
 
+    const getBackendUrl = () => import.meta.env.VITE_BASE_URL || "https://blogify-backend1.onrender.com";
+
     const handleLike = async () => {
         if (!token) {
             toast.error("Please login to like posts");
             return;
         }
         try {
-            const endpoint = `/api/posts/${id}/like`;
+            const endpoint = `${getBackendUrl()}/api/posts/${id}/like`;
             const config = { headers: { Authorization: token } };
             const { data: res } = isLiked
                 ? await axios.delete(endpoint, config)
@@ -383,7 +385,7 @@ const Blog = () => {
             return;
         }
         try {
-            const endpoint = `/api/posts/${id}/save`;
+            const endpoint = `${getBackendUrl()}/api/posts/${id}/save`;
             const config = { headers: { Authorization: token } };
             const { data: res } = isSaved
                 ? await axios.delete(endpoint, config)
@@ -401,13 +403,14 @@ const Blog = () => {
 
     const fetchBlogData = async () => {
         try {
-            const { data: res } = await axios.get(`/api/blog/published/${id}`);
+            const backendUrl = getBackendUrl();
+            const { data: res } = await axios.get(`${backendUrl}/api/blog/published/${id}`);
             if (res.success && res.blog) {
                 setData(res.blog);
                 setHeadings(parseHeadings(res.blog.description));
                 // Record view count
                 if (token) {
-                    axios.post(`/api/posts/${id}/view`, {}, {
+                    axios.post(`${backendUrl}/api/posts/${id}/view`, {}, {
                         headers: { Authorization: token }
                     }).catch(err => console.error("View tracking error:", err));
                 }
@@ -416,8 +419,8 @@ const Blog = () => {
                 if (token && currentUser) {
                     try {
                         const [likesRes, savedRes] = await Promise.all([
-                            axios.get(`/api/posts/${id}/likes`, { headers: { Authorization: token } }),
-                            axios.get(`/api/posts/saved`, { headers: { Authorization: token } })
+                            axios.get(`${backendUrl}/api/posts/${id}/likes`, { headers: { Authorization: token } }),
+                            axios.get(`${backendUrl}/api/posts/saved`, { headers: { Authorization: token } })
                         ]);
 
                         const likesData = likesRes.data;
@@ -453,6 +456,7 @@ const Blog = () => {
                 });
             }
         } catch (error) {
+            console.error("Error fetching blog data:", error);
             import("../assets/assets").then(({ blog_data }) => {
                 const fallback = blog_data.find((b) => b._id === id) || (blogs && blogs[0]) || blog_data[0];
                 if (fallback) {
@@ -465,7 +469,8 @@ const Blog = () => {
 
     const fetchComments = async () => {
         try {
-            const { data } = await axios.get("/api/comment/blog/" + id);
+            const backendUrl = getBackendUrl();
+            const { data } = await axios.get(`${backendUrl}/api/comment/blog/${id}`);
             if (data.success && data.comments && data.comments.length > 0) {
                 setComments(data.comments);
             } else {
@@ -485,7 +490,8 @@ const Blog = () => {
     const addComment = async (e) => {
         e.preventDefault();
         try {
-            const { data } = await axios.post("/api/comment/add", { blog: id, name, content });
+            const backendUrl = getBackendUrl();
+            const { data } = await axios.post(`${backendUrl}/api/comment/add`, { blog: id, name, content });
             data.success ? toast.success(data.message) : toast.error(data.message);
             setName("");
             setContent("");
