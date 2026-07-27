@@ -108,18 +108,19 @@ const Blog = () => {
         return textSource.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
     };
 
-    const playBackendAudio = async (text, lang) => {
+    const playBackendAudio = async (text) => {
         try {
             setSpeechStatus("Speaking");
             setShowAudioPanel(true);
-            const { data: res } = await axios.post("/api/ai/tts", { text, lang: currentLanguage });
+            const backendUrl = import.meta.env.VITE_BASE_URL || "https://blogify-backend1.onrender.com";
+            const { data: res } = await axios.post(`${backendUrl}/api/ai/tts`, { text, lang: currentLanguage });
             if (res.success && res.audioUrl) {
                 if (audioInstance) audioInstance.pause();
                 const audio = new Audio(res.audioUrl);
                 audio.playbackRate = playbackRate;
                 audio.onended = () => { setSpeechStatus("Idle"); setAudioInstance(null); };
                 audio.onerror = () => { setSpeechStatus("Idle"); setAudioInstance(null); };
-                audio.play().catch(e => console.error("Audio play error:", e));
+                await audio.play();
                 setAudioInstance(audio);
             } else {
                 toast.error("Audio generation failed.");
@@ -133,6 +134,49 @@ const Blog = () => {
     };
 
     const isNative = () => typeof Capacitor !== 'undefined' && Capacitor?.isNativePlatform && Capacitor.isNativePlatform();
+
+    const speakWebSpeech = (text, lang) => {
+        if (typeof window === 'undefined' || !('speechSynthesis' in window)) return false;
+        try {
+            window.speechSynthesis.cancel();
+            
+            const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+            let sentenceIndex = 0;
+            
+            const speakNextSentence = () => {
+                if (sentenceIndex >= sentences.length) {
+                    setSpeechStatus("Idle");
+                    return;
+                }
+                const utterance = new SpeechSynthesisUtterance(sentences[sentenceIndex]);
+                utterance.rate = playbackRate;
+                utterance.lang = lang;
+                
+                const voices = window.speechSynthesis.getVoices();
+                const voice = voices.find(v => v.lang === lang || v.lang.startsWith(lang.split('-')[0]));
+                if (voice) utterance.voice = voice;
+                
+                utterance.onend = () => {
+                    sentenceIndex++;
+                    speakNextSentence();
+                };
+                utterance.onerror = (e) => {
+                    console.error("Utterance error, switching to backend audio:", e);
+                    playBackendAudio(text);
+                };
+                
+                window.speechSynthesis.speak(utterance);
+            };
+            
+            setSpeechStatus("Speaking");
+            setShowAudioPanel(true);
+            speakNextSentence();
+            return true;
+        } catch (e) {
+            console.error("WebSpeech error:", e);
+            return false;
+        }
+    };
 
     const playSpeech = async () => {
         if (audioInstance) {
@@ -148,6 +192,16 @@ const Blog = () => {
             toast.error("No article text available to read.");
             return;
         }
+
+        const langMap = {
+            "Hindi": "hi-IN",
+            "Telugu": "te-IN",
+            "Tamil": "ta-IN",
+            "Spanish": "es-ES",
+            "French": "fr-FR",
+            "Original": "en-US"
+        };
+        const lang = langMap[currentLanguage] || "en-US";
 
         if (isNative()) {
             try {
@@ -167,8 +221,11 @@ const Blog = () => {
                 await playBackendAudio(text);
             }
         } else {
-            // Use backend Google TTS audio directly as primary engine for 100% reliable audio on Vercel
-            await playBackendAudio(text);
+            // First try browser WebSpeech API (0ms instant speech), fall back to backend Google TTS if unsupported
+            const started = speakWebSpeech(text, lang);
+            if (!started) {
+                await playBackendAudio(text);
+            }
         }
     };
 
