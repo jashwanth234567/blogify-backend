@@ -142,17 +142,10 @@ const Blog = () => {
         }
 
         const text = getCleanText();
-        if (!text) return;
-        
-        const langMap = {
-            "Hindi": "hi-IN",
-            "Telugu": "te-IN",
-            "Tamil": "ta-IN",
-            "Spanish": "es-ES",
-            "French": "fr-FR",
-            "Original": "en-US"
-        };
-        const lang = langMap[currentLanguage] || "en-US";
+        if (!text) {
+            toast.error("No article text available to read.");
+            return;
+        }
 
         if (Capacitor.isNativePlatform()) {
             try {
@@ -160,8 +153,8 @@ const Blog = () => {
                 setSpeechStatus("Speaking");
                 setShowAudioPanel(true);
                 await TextToSpeech.speak({
-                    text: text,
-                    lang: lang,
+                    text: text.slice(0, 500),
+                    lang: currentLanguage === "Hindi" ? "hi-IN" : "en-US",
                     rate: playbackRate,
                     pitch: 1.0,
                     category: 'ambient',
@@ -169,38 +162,11 @@ const Blog = () => {
                 setSpeechStatus("Idle");
             } catch (error) {
                 console.error("Capacitor TTS Error", error);
-                await playBackendAudio(text, lang);
+                await playBackendAudio(text);
             }
         } else {
-            try {
-                if (!('speechSynthesis' in window)) {
-                    await playBackendAudio(text, lang);
-                    return;
-                }
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = playbackRate;
-                utterance.lang = lang;
-                
-                const voices = window.speechSynthesis.getVoices();
-                let selectedVoice = voices.find(v => v.lang === lang) || 
-                                    voices.find(v => v.lang.startsWith(lang.split('-')[0]));
-                if (selectedVoice) {
-                    utterance.voice = selectedVoice;
-                }
-                
-                utterance.onend = () => setSpeechStatus("Idle");
-                utterance.onerror = (e) => {
-                    console.error("Speech Synthesis Error, switching to backend audio:", e);
-                    playBackendAudio(text, lang);
-                };
-                
-                window.speechSynthesis.speak(utterance);
-                setSpeechStatus("Speaking");
-                setShowAudioPanel(true);
-            } catch (err) {
-                await playBackendAudio(text, lang);
-            }
+            // Use backend Google TTS audio directly as primary engine for 100% reliable audio on Vercel
+            await playBackendAudio(text);
         }
     };
 
