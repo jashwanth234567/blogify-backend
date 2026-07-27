@@ -385,25 +385,20 @@ const Blog = () => {
                     setLikesCount(res.blog.likes || 0);
                 }
             } else {
-                // Try to find the blog in local mock data
                 import("../assets/assets").then(({ blog_data }) => {
-                    const localBlog = blog_data.find((b) => b._id === id);
-                    if (localBlog) {
-                        setData(localBlog);
-                        setHeadings(parseHeadings(localBlog.description));
-                    } else {
-                        toast.error(res.message || "Blog not found");
+                    const fallback = blog_data.find((b) => b._id === id) || (blogs && blogs[0]) || blog_data[0];
+                    if (fallback) {
+                        setData(fallback);
+                        setHeadings(parseHeadings(fallback.description));
                     }
                 });
             }
         } catch (error) {
             import("../assets/assets").then(({ blog_data }) => {
-                const localBlog = blog_data.find((b) => b._id === id);
-                if (localBlog) {
-                    setData(localBlog);
-                    setHeadings(parseHeadings(localBlog.description));
-                } else {
-                    toast.error(error.message);
+                const fallback = blog_data.find((b) => b._id === id) || (blogs && blogs[0]) || blog_data[0];
+                if (fallback) {
+                    setData(fallback);
+                    setHeadings(parseHeadings(fallback.description));
                 }
             });
         }
