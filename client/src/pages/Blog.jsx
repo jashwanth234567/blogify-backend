@@ -10,8 +10,7 @@ import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 import { Trash2 } from "lucide-react";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
-import { Capacitor } from '@capacitor/core';
-import { TextToSpeech } from '@capacitor-community/text-to-speech';
+
 const Blog = () => {
     const { id } = useParams();
     const { axios, blogs, fetchBlogs, token, user: currentUser } = useAppContext();
@@ -133,8 +132,6 @@ const Blog = () => {
         }
     };
 
-    const isNative = () => typeof Capacitor !== 'undefined' && Capacitor?.isNativePlatform && Capacitor.isNativePlatform();
-
     const speakWebSpeech = (text, lang) => {
         if (typeof window === 'undefined' || !('speechSynthesis' in window)) return false;
         try {
@@ -203,29 +200,10 @@ const Blog = () => {
         };
         const lang = langMap[currentLanguage] || "en-US";
 
-        if (isNative()) {
-            try {
-                await TextToSpeech.stop();
-                setSpeechStatus("Speaking");
-                setShowAudioPanel(true);
-                await TextToSpeech.speak({
-                    text: text.slice(0, 500),
-                    lang: currentLanguage === "Hindi" ? "hi-IN" : "en-US",
-                    rate: playbackRate,
-                    pitch: 1.0,
-                    category: 'ambient',
-                });
-                setSpeechStatus("Idle");
-            } catch (error) {
-                console.error("Capacitor TTS Error", error);
-                await playBackendAudio(text);
-            }
-        } else {
-            // First try browser WebSpeech API (0ms instant speech), fall back to backend Google TTS if unsupported
-            const started = speakWebSpeech(text, lang);
-            if (!started) {
-                await playBackendAudio(text);
-            }
+        // First try browser WebSpeech API (0ms instant speech), fall back to backend Google TTS if unsupported
+        const started = speakWebSpeech(text, lang);
+        if (!started) {
+            await playBackendAudio(text);
         }
     };
 
@@ -235,13 +213,10 @@ const Blog = () => {
             setSpeechStatus("Paused");
             return;
         }
-        if (isNative()) {
-            await TextToSpeech.stop();
-            setSpeechStatus("Idle");
-        } else {
-            if ('speechSynthesis' in window) window.speechSynthesis.pause();
-            setSpeechStatus("Paused");
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            window.speechSynthesis.pause();
         }
+        setSpeechStatus("Paused");
     };
 
     const resumeSpeech = () => {
@@ -250,12 +225,10 @@ const Blog = () => {
             setSpeechStatus("Speaking");
             return;
         }
-        if (isNative()) {
-            playSpeech();
-        } else {
-            if ('speechSynthesis' in window) window.speechSynthesis.resume();
-            setSpeechStatus("Speaking");
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            window.speechSynthesis.resume();
         }
+        setSpeechStatus("Speaking");
     };
 
     const stopSpeech = async () => {
@@ -266,10 +239,8 @@ const Blog = () => {
             setSpeechStatus("Idle");
             return;
         }
-        if (isNative()) {
-            await TextToSpeech.stop();
-        } else {
-            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
         }
         setSpeechStatus("Idle");
     };
@@ -511,9 +482,7 @@ const Blog = () => {
             if (audioInstance) {
                 audioInstance.pause();
             }
-            if (isNative()) {
-                TextToSpeech.stop().catch(console.error);
-            } else if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
             }
         };
