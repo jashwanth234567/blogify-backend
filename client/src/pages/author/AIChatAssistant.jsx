@@ -27,7 +27,8 @@ const AIChatAssistant = () => {
             // Add a temporary model message to append tokens into
             setHistory([...newHistory, { role: "model", text: "" }]);
 
-            const response = await fetch("/api/ai/chat", {
+            const backendUrl = import.meta.env.VITE_BASE_URL || "https://blogify-backend1.onrender.com";
+            const response = await fetch(`${backendUrl}/api/ai/chat`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
