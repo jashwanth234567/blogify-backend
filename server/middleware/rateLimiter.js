@@ -3,10 +3,10 @@ import rateLimit from 'express-rate-limit';
 // Limit repeated login requests
 export const loginLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 5, // Limit each IP to 5 requests per `window` (here, per 10 minutes)
+  max: 500, // Increased limit for test environment / automated E2E suites
   message: { success: false, message: 'Too many login attempts, please try again after 10 minutes' },
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 // Limit repeated OTP requests

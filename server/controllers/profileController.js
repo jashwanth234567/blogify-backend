@@ -34,6 +34,11 @@ export const getProfile = async (req, res) => {
       return res.json({ success: false, message: "User not found" });
     }
 
+    // Exclude admin profiles from being viewed publicly
+    if (user.isAdmin || ["ADMIN", "SUPER_ADMIN"].includes(user.role)) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
     const userId = user._id;
 
     // Check if viewing own profile

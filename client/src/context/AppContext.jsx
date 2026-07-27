@@ -2,8 +2,41 @@ import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { io } from "socket.io-client";
 
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL || "";
+
+// ─── Global Axios Interceptors ───────────────────────────────────────────────
+// Request: auto-inject stored token on every request
+axios.interceptors.request.use(
+    (config) => {
+        const storedToken = localStorage.getItem("token");
+        if (storedToken && !config.headers["Authorization"]) {
+            config.headers["Authorization"] = storedToken;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+// Response: auto-clear token if server says it's invalid/expired
+axios.interceptors.response.use(
+    (response) => {
+        // If the server returns { success: false, message: "Invalid token" } or "Not Authorized"
+        if (
+            response.data &&
+            response.data.success === false &&
+            (response.data.message === "Invalid token" ||
+                response.data.message === "Not Authorized")
+        ) {
+            // Clear stale token silently
+            localStorage.removeItem("token");
+            delete axios.defaults.headers.common["Authorization"];
+        }
+        return response;
+    },
+    (error) => Promise.reject(error)
+);
 
 const AppContext = createContext();
 
@@ -15,11 +48,30 @@ export const AppProvider = ({ children }) => {
     const [isAdmin, setIsAdmin] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [blogs, setBlogs] = useState([]);
+    const [socket, setSocket] = useState(null);
     const [input, setInput] = useState("");
     const [isDarkMode, setIsDarkMode] = useState(
         localStorage.getItem("theme") === "dark" ||
         (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)
     );
+
+    // Initialize Socket.io real-time connection
+    useEffect(() => {
+        const socketUrl = import.meta.env.VITE_BASE_URL || window.location.origin;
+        const socketInstance = io(socketUrl, {
+            transports: ["websocket", "polling"],
+        });
+
+        socketInstance.on("blog:deleted", ({ blogId }) => {
+            setBlogs((prev) => prev.filter((b) => b._id !== blogId));
+        });
+
+        setSocket(socketInstance);
+
+        return () => {
+            socketInstance.disconnect();
+        };
+    }, []);
 
     useEffect(() => {
         if (isDarkMode) {
@@ -35,9 +87,11 @@ export const AppProvider = ({ children }) => {
         setIsDarkMode((prev) => !prev);
     };
 
-    const fetchBlogs = async () => {
+    const fetchBlogs = async (feedType = "latest", category = "All") => {
         try {
-            const { data } = await axios.get("/api/blog/all");
+            const storedToken = localStorage.getItem("token");
+            const config = storedToken ? { headers: { Authorization: storedToken } } : {};
+            const { data } = await axios.get(`/api/blog/all?feed=${feedType}&category=${category}`, config);
             if (data.success) {
                 if (data.blogs && data.blogs.length > 0) {
                     setBlogs(data.blogs);
@@ -58,6 +112,12 @@ export const AppProvider = ({ children }) => {
             });
         }
     };
+
+    // Feature 3: Immediate top insertion of new posts without refresh
+    const addPostToFeed = (newBlog) => {
+        setBlogs(prev => [newBlog, ...prev]);
+    };
+
 
     const fetchProfile = async (currentToken) => {
         try {
@@ -152,6 +212,20 @@ export const AppProvider = ({ children }) => {
         fetchBlogs();
         const storedToken = localStorage.getItem("token");
         if (storedToken) {
+            // Pre-check token expiry client-side before making any API call
+            try {
+                const payload = JSON.parse(atob(storedToken.split(".")[1]));
+                const isExpired = payload.exp && payload.exp * 1000 < Date.now();
+                if (isExpired) {
+                    // Token is expired — clear it silently
+                    localStorage.removeItem("token");
+                    return;
+                }
+            } catch {
+                // Malformed token — clear it
+                localStorage.removeItem("token");
+                return;
+            }
             setToken(storedToken);
             fetchProfile(storedToken);
             // Force-fetch notifications on initial load
@@ -186,12 +260,16 @@ export const AppProvider = ({ children }) => {
         handleLogout,
         blogs,
         setBlogs,
+        socket,
         input,
         setInput,
         fetchBlogs,
+        fetchProfile,
+        addPostToFeed,
         isDarkMode,
         toggleDarkMode,
     };
+
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

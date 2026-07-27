@@ -68,8 +68,8 @@ const Register = () => {
                 password
             });
             if (data.success) {
-                toast.success("Registration successful! Redirecting to login...");
-                setTimeout(() => navigate("/login"), 2000);
+                toast.success(data.message || "OTP code sent to your email!");
+                navigate("/verify-otp", { state: { email } });
             } else {
                 toast.error(data.message);
             }

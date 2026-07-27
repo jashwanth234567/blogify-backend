@@ -38,10 +38,16 @@ const Layout = () => {
                     <img
                         src={isDarkMode ? assets.logo_light : assets.logo}
                         alt="logo"
-                        className="w-32 sm:w-36 cursor-pointer"
+                        className="w-32 sm:w-36 cursor-pointer hover:opacity-90 transition-opacity"
                         onClick={() => navigate("/")}
                     />
                     <span className="text-[10px] uppercase font-bold tracking-widest bg-violet-600/20 text-violet-600 dark:text-violet-400 border border-violet-500/20 px-2 py-0.5 rounded">SaaS Pro</span>
+                    <button
+                        onClick={() => navigate("/")}
+                        className="flex items-center gap-1.5 px-3 py-1.5 ml-2 rounded-xl bg-violet-600/10 hover:bg-violet-600/20 text-violet-600 dark:text-violet-400 text-xs font-bold transition-all border border-violet-500/20 cursor-pointer"
+                    >
+                        🏠 Back to Home
+                    </button>
                 </div>
                 
                 <div className="flex items-center gap-3">
@@ -157,16 +163,16 @@ const Layout = () => {
                         )}
                     </div>
 
-                    <button onClick={handleLogout} className="text-xs px-5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold rounded-xl cursor-pointer transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+                    <button onClick={handleLogout} className="text-xs px-5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold rounded-xl cursor-pointer transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
                         Logout
                     </button>
                 </div>
             </div>
 
             {/* Layout body */}
-            <div className="flex h-[calc(100vh-70px)] bg-[rgb(219,218,218)] dark:bg-slate-950 overflow-hidden transition-colors duration-300">
+            <div className="flex h-[calc(100vh-70px)] bg-slate-50 dark:bg-slate-950 overflow-hidden transition-colors duration-300">
                 <Sidebar collapsed={collapsed} toggleCollapse={() => setCollapsed(!collapsed)} />
-                <div className="flex-1 overflow-y-auto bg-[rgb(219,218,218)] dark:bg-slate-950 relative transition-colors duration-300">
+                <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 relative transition-colors duration-300">
                     <Outlet />
                 </div>
             </div>

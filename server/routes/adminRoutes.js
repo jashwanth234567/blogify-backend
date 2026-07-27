@@ -1,80 +1,121 @@
 import express from "express";
-import jwt from "jsonwebtoken";
-import User from "../models/User.js";
-import { protect } from "../middleware/auth.js";
+import {
+  adminLogin,
+  getAdminMe,
+  adminLogout,
+  getDashboardStats,
+  getDashboardCharts,
+  getUsersList,
+  exportUsers,
+  getUserDetails,
+  handleUserAction,
+  getAdminPosts,
+  handlePostAction,
+  getAdminComments,
+  handleCommentAction,
+  getAdminReports,
+  resolveAdminReport,
+  globalAdminSearch,
+  getAdminAuditLogs,
+  getAdminSettings,
+  updateAdminSettings,
+  backupDatabase,
+  changeUserRole,
+  getAdminSecurity,
+  getAdminVerification,
+  handleVerificationAction,
+  getAdminCategories,
+  getAdminAiModeration,
+  getAdminLogs,
+} from "../controllers/adminController.js";
+import { protectAdmin } from "../middleware/adminAuth.js";
+import { requireSuperAdmin } from "../middleware/roleGuard.js";
 
 const router = express.Router();
 
-// Admin Login - returns httpOnly cookie
-router.post('/login', async (req, res) => {
- try {
- const { email, password } = req.body;
- const user = await User.findOne({ email });
- if (!user) return res.status(400).json({ success: false, message: 'User not found' });
- const bcrypt = (await import('bcryptjs')).default;
- const match = await bcrypt.compare(password, user.password);
- if (!match) return res.status(400).json({ success: false, message: 'Invalid credentials' });
- if (!user.isAdmin) return res.status(403).json({ success: false, message: 'Not an admin' });
- const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '2h' });
- res.cookie('admin_token', token, { httpOnly: true, sameSite: 'strict', maxAge: 2 * 60 * 60 * 1000 });
- res.json({ success: true, token });
- } catch (err) {
- res.status(500).json({ success: false, message: err.message });
- }
+// ─── Public Admin Auth (no middleware) ───────────────────────────────────────
+router.post("/login",        adminLogin);
+router.post("/auth/login",   adminLogin);
+router.post("/admin-login",  adminLogin);
+
+// ─── All routes below require admin authentication ───────────────────────────
+router.use(protectAdmin);
+
+// ─── Admin Identity ───────────────────────────────────────────────────────────
+router.get("/auth/me",       getAdminMe);
+router.post("/auth/logout",  adminLogout);
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+router.get("/dashboard/stats",  getDashboardStats);
+router.get("/dashboard/charts", getDashboardCharts);
+router.get("/stats",            getDashboardStats);     // legacy
+router.get("/analytics",        getDashboardCharts);    // legacy
+
+// ─── User Management ──────────────────────────────────────────────────────────
+router.get("/users/export",           exportUsers);
+router.get("/users",                  getUsersList);
+router.get("/users/:id",              getUserDetails);
+router.put("/users/:id/action",       handleUserAction);
+router.put("/users/:id/role",         changeUserRole);   // RBAC role change
+
+// Legacy shorthands
+router.put("/users/:id/edit", (req, res) => {
+  req.body = { action: "edit", payload: req.body };
+  return handleUserAction(req, res);
+});
+router.put("/users/:id/block", (req, res) => {
+  req.body = { action: req.body.isBlocked ? "block" : "unblock", payload: req.body };
+  return handleUserAction(req, res);
+});
+router.put("/users/:id/suspend", (req, res) => {
+  req.body = { action: req.body.lift ? "lift_suspend" : "suspend", payload: req.body };
+  return handleUserAction(req, res);
+});
+router.post("/users/:id/reset-password", (req, res) => {
+  req.body = { action: "reset_password", payload: req.body };
+  return handleUserAction(req, res);
+});
+router.delete("/users/:id", (req, res) => {
+  req.body = { action: "delete", payload: {} };
+  return handleUserAction(req, res);
 });
 
-router.get('/me', protect, async (req, res) => {
- if (!req.isAdmin) return res.status(403).json({ success: false, message: 'Access denied' });
- const { _id, name, email, image } = req.user;
- res.json({ success: true, admin: { _id, name, email, image } });
-});
+// ─── Post Management ──────────────────────────────────────────────────────────
+router.get("/posts",             getAdminPosts);
+router.put("/posts/:id/action",  handlePostAction);
 
-router.post('/logout', (req, res) => {
- res.clearCookie('admin_token');
- res.json({ success: true, message: 'Logged out' });
-});
+// ─── Comment Management ───────────────────────────────────────────────────────
+router.get("/comments",              getAdminComments);
+router.put("/comments/:id/action",   handleCommentAction);
 
-router.post('/refresh', protect, async (req, res) => {
- if (!req.isAdmin) return res.status(403).json({ success: false, message: 'Access denied' });
- const token = jwt.sign({ userId: req.userId }, process.env.JWT_SECRET, { expiresIn: '2h' });
- res.cookie('admin_token', token, { httpOnly: true, sameSite: 'strict', maxAge: 2 * 60 * 60 * 1000 });
- res.json({ success: true, token });
-});
+// ─── Reports / Moderation ─────────────────────────────────────────────────────
+router.get("/reports",              getAdminReports);
+router.put("/reports/:id/resolve",  resolveAdminReport);
 
-import History from "../models/history.js";
+// ─── Categories & Tags ────────────────────────────────────────────────────────
+router.get("/categories",           getAdminCategories);
 
-router.get('/activities', protect, async (req, res) => {
-  if (!req.isAdmin) return res.status(403).json({ success: false, message: 'Access denied' });
+// ─── Verification ─────────────────────────────────────────────────────────────
+router.get("/verification",                      getAdminVerification);
+router.put("/verification/:id/:action",          handleVerificationAction);
 
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const search = req.query.search || '';
-    
-    // Construct search filter
-    const query = {};
-    if (search) {
-      query.action = { $regex: search, $options: 'i' };
-    }
+// ─── Security & Login Logs ────────────────────────────────────────────────────
+router.get("/security",             getAdminSecurity);
 
-    const activities = await History.find(query)
-      .populate('user', 'name username email image')
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
+// ─── AI Moderation ────────────────────────────────────────────────────────────
+router.get("/ai-moderation",        getAdminAiModeration);
 
-    const total = await History.countDocuments(query);
+// ─── System Logs ─────────────────────────────────────────────────────────────
+router.get("/logs",                 getAdminLogs);
+router.get("/audit-logs",           getAdminAuditLogs);
+router.get("/activities",           getAdminAuditLogs);   // legacy
 
-    res.json({
-      success: true,
-      activities,
-      total,
-      page,
-      pages: Math.ceil(total / limit)
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+// ─── Global Search ────────────────────────────────────────────────────────────
+router.get("/global-search",        globalAdminSearch);
+
+// ─── Site Settings (Super Admin only for writes) ──────────────────────────────
+router.get("/settings",             getAdminSettings);
+router.put("/settings",             requireSuperAdmin, updateAdminSettings);
+router.post("/database/backup",     requireSuperAdmin, backupDatabase);
 
 export default router;

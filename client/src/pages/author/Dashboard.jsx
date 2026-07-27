@@ -50,7 +50,7 @@ const Dashboard = () => {
 
     // Modern SaaS Dashboard View (Combined Admin & Regular layout based on roles, unified styling)
     return (
-        <div className="flex-1 p-[32px] md:p-[64px] bg-[rgb(219,218,218)] dark:bg-slate-950 text-slate-800 dark:text-slate-100 overflow-y-auto space-y-[32px] transition-colors duration-300">
+        <div className="flex-1 p-[32px] md:p-[64px] bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 overflow-y-auto space-y-[32px] transition-colors duration-300">
             {/* Header */}
             <div className="bz-card flex justify-between items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[24px] p-[24px] shadow-lg transition-colors duration-300">
                 <div>

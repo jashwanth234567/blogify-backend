@@ -102,3 +102,27 @@ export const markAllAsRead = async (req, res) => {
         res.json({ success: false, message: error.message });
     }
 };
+
+// Delete notification
+// DELETE /api/notification/:id
+export const deleteNotification = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.userId;
+
+        const notification = await Notification.findById(id);
+        if (!notification) {
+            return res.status(404).json({ success: false, message: "Notification not found" });
+        }
+
+        if (req.isAdmin || (notification.user && notification.user.toString() === userId.toString())) {
+            await Notification.findByIdAndDelete(id);
+            return res.json({ success: true, message: "Notification deleted" });
+        }
+
+        res.status(403).json({ success: false, message: "Unauthorized" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+

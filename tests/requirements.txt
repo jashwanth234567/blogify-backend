@@ -1,0 +1,26 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Blogify E2E Testing Suite — Python Dependencies
+# Install: pip install -r requirements.txt
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Core test runner
+pytest==8.3.2
+pytest-html==4.1.1
+pytest-xdist==3.6.1
+
+# Selenium — Web E2E testing
+selenium==4.21.0
+webdriver-manager==4.0.1
+
+# Appium — Mobile E2E testing (Android)
+Appium-Python-Client==4.0.0
+
+# Excel report generation
+openpyxl==3.1.5
+xlsxwriter==3.2.0
+
+# Utilities
+python-dotenv==1.0.1
+requests==2.32.3
+Faker==25.4.0
+pytest-timeout==2.3.1

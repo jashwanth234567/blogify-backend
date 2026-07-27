@@ -187,7 +187,7 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
 
                 {isAdmin && (
                     <NavLink
-                        to="/author/admin-analytics"
+                        to="/author/admin-panel"
                         style={{ textDecoration: "none" }}
                         className={({ isActive }) =>
                             isActive ? "sidebar-link sidebar-link--active" : "sidebar-link"

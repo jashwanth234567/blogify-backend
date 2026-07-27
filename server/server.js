@@ -1,5 +1,6 @@
 import "./configs/env.js"; // ← MUST be first: loads dotenv before any other module reads process.env
 import express from "express";
+import http from "http";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -16,12 +17,18 @@ import profileRouter from "./routes/profileRoutes.js";
 import historyRouter from "./routes/historyRoutes.js";
 import postsRouter from "./routes/postsRoutes.js";
 import notificationRouter from "./routes/notificationRoutes.js";
+import reportRouter from "./routes/reportRoutes.js";
 import connectCloudinary from "./configs/cloudinary.js";
+import { initSocket } from "./utils/socket.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+const server = http.createServer(app);
+
+// Initialize Socket.io real-time engine
+initSocket(server);
 
 await connectDB();
 connectCloudinary();
@@ -38,6 +45,7 @@ app.use(express.static(clientBuildPath));
 // API Routes
 app.use("/api/auth", authRouter);
 app.use("/api/blog", blogRouter);
+app.use("/api/blogs", blogRouter); // support dynamic route /api/blogs/:id
 app.use("/api/comment", commentRouter);
 app.use("/api/user", userRouter);
 app.use("/api/users", userRouter); // support pluralized route calls
@@ -45,24 +53,25 @@ app.use("/api/profile", profileRouter);
 app.use("/api/posts", postsRouter);
 app.use("/api/notification", notificationRouter);
 app.use("/api/notifications", notificationRouter); // support pluralized notifications endpoint
+app.use("/api/reports", reportRouter);
 app.use("/api/ai", aiRouter);
 app.use("/api/history", historyRouter);
 app.use("/api/admin", adminRoutes);
 
-// Fallback for API routes (if not found, return 404 instead of serving index.html)
+// Fallback for API routes
 app.use("/api", (req, res) => {
   res.status(404).json({ success: false, message: "API route not found" });
 });
 
-// Fallback: serve React index.html for any other unmatched route (SPA routing)
+// Fallback: serve React index.html for SPA routing
 app.use((req, res) => {
   res.sendFile(path.join(clientBuildPath, "index.html"));
 });
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, "0.0.0.0", () => {
-    console.log("Server is running on port " + PORT);
+server.listen(PORT, "0.0.0.0", () => {
+    console.log("🚀 Server & Socket.io running on port " + PORT);
 });
 
 export default app;

@@ -3,7 +3,7 @@ import Comment from "../models/Comment.js";
 import User from "../models/User.js";
 import Notification from "../models/Notification.js";
 import { v2 as cloudinary } from "cloudinary";
-import { generateBlogContent } from "../configs/gemini.js";
+import { aiProvider } from "../services/aiProvider.js";
 import { logActivity } from "../middleware/activityLogger.js";
 import { sendBlogPublishedEmail } from "../configs/emailService.js";
 
@@ -81,6 +81,7 @@ export const addBlog = async (req, res) => {
         res.json({
             success: true,
             message: "Blog added successfully",
+            blog: newBlog,
         });
 
     } catch (error) {
@@ -104,7 +105,7 @@ export const generateBlog = async (req, res) => {
             });
         }
 
-        const content = await generateBlogContent(title);
+        const content = await aiProvider.generateBlog(title);
 
         if (!content) {
             return res.json({
@@ -126,16 +127,80 @@ export const generateBlog = async (req, res) => {
     }
 };
 
-// Get All Published Blogs ( Public Route )
-// GET /api/blog/all
+import { getCachedData, setCachedData, clearCache } from "../utils/fastCache.js";
+
+// Get All Published Blogs ( Public Route with Feed Filtering & Fast Cache )
+// GET /api/blog/all?feed=latest|friends|recommended|trending&category=...
 export const getAllPublishedBlogs = async (req, res) => {
     try {
-        const blogs = await Blog.find({ isPublished: true });
+        const { feed = "latest", category, page = 1, limit = 20 } = req.query;
+        const cacheKey = `blogs_${feed}_${category || "all"}_${page}_${limit}`;
 
-        res.json({
+        const cachedResponse = getCachedData(cacheKey);
+        if (cachedResponse) {
+            return res.json(cachedResponse);
+        }
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        const admins = await User.find({ $or: [{ isAdmin: true }, { role: { $in: ["ADMIN", "SUPER_ADMIN"] } }] }).select("_id").lean();
+        const adminIds = admins.map(a => a._id);
+
+        let query = { 
+            isPublished: true,
+            author: { $nin: adminIds }
+        };
+
+        if (category && category !== "All") {
+            query.category = category;
+        }
+
+        let sortOption = { createdAt: -1 }; // Feature 3: Default ORDER BY created_at DESC
+
+        if (feed === "friends") {
+            let token = req.headers.authorization;
+            if (token && token.startsWith("Bearer ")) token = token.split(" ")[1];
+            
+            let currentUserId = null;
+            if (token) {
+                try {
+                    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                    currentUserId = decoded.userId;
+                } catch (e) {}
+            }
+
+            if (currentUserId) {
+                const Follow = (await import("../models/Follow.js")).default;
+                const follows = await Follow.find({ follower: currentUserId }).select("following");
+                const followingIds = follows.map(f => f.following);
+                query.author = { $in: followingIds };
+            }
+        } else if (feed === "trending") {
+            sortOption = { views: -1, likes: -1, createdAt: -1 };
+        } else if (feed === "recommended") {
+            sortOption = { likes: -1, views: -1, createdAt: -1 };
+        }
+
+        const blogs = await Blog.find(query)
+            .populate("author", "name username image bio")
+            .sort(sortOption)
+            .skip(skip)
+            .limit(parseInt(limit))
+            .lean();
+
+        const total = await Blog.countDocuments(query);
+
+        const responsePayload = {
             success: true,
             blogs,
-        });
+            total,
+            page: parseInt(page),
+            pages: Math.ceil(total / parseInt(limit))
+        };
+
+        setCachedData(cacheKey, responsePayload, 15000);
+
+        res.json(responsePayload);
 
     } catch (error) {
         res.json({
@@ -144,6 +209,7 @@ export const getAllPublishedBlogs = async (req, res) => {
         });
     }
 };
+
 
 // Get Published Blog By Id ( Public Route )
 // GET /api/blog/published/:blogId
@@ -178,48 +244,63 @@ export const getPublishedBlogById = async (req, res) => {
     }
 };
 
+import { emitBlogDeleted } from "../utils/socket.js";
+
 // Delete Blog By Id ( Private Route , Auth Required )
-// DELETE /api/blog/delete/:blogId
+// DELETE /api/blogs/:id or DELETE /api/blog/delete/:blogId
 export const deleteBlogById = async (req, res) => {
     try {
         const userId = req.userId;
+        const targetId = req.params.id || req.params.blogId;
 
-        const query = req.isAdmin
-            ? {}
-            : { author: userId };
-
-        const { blogId } = req.params;
-
-        const blogToDelete = await Blog.findOne({
-            _id: blogId,
-            ...query,
-        });
+        const blogToDelete = await Blog.findById(targetId);
 
         if (!blogToDelete) {
-            return res.json({
+            return res.status(404).json({
                 success: false,
-                message: "Blog not found or unauthorized",
+                message: "Blog post not found",
+            });
+        }
+
+        // Authorization check: User must be author OR admin
+        const isAuthor = blogToDelete.author.toString() === userId.toString();
+        const isAdminUser = req.isAdmin || (req.user && ["ADMIN", "SUPER_ADMIN"].includes(req.user.role));
+
+        if (!isAuthor && !isAdminUser) {
+            return res.status(403).json({
+                success: false,
+                message: "Unauthorized: You can only delete your own blog posts.",
             });
         }
 
         const title = blogToDelete.title;
 
-        await Blog.findByIdAndDelete(blogId);
+        // Perform Soft Delete for data retention or hard delete
+        blogToDelete.isDeleted = true;
+        blogToDelete.isPublished = false;
+        blogToDelete.deletedAt = new Date();
+        await blogToDelete.save();
 
-        await Comment.deleteMany({
-            blog: blogId,
-        });
+        // Cascade cleanup comments
+        await Comment.updateMany({ blog: targetId }, { isDeleted: true });
+
+        // Clear fast cache
+        clearCache("blogs_");
 
         // Log Activity
         await logActivity(userId, "blog_delete", `Deleted blog: "${title}"`);
 
+        // Real-time Socket.io notification broadcast
+        emitBlogDeleted(targetId);
+
         res.json({
             success: true,
-            message: "Blog deleted successfully",
+            message: "Blog post deleted successfully",
+            deletedId: targetId
         });
 
     } catch (error) {
-        res.json({
+        res.status(500).json({
             success: false,
             message: error.message,
         });

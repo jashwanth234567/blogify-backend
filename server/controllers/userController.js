@@ -4,9 +4,182 @@ import Comment from "../models/Comment.js";
 import User from "../models/User.js";
 import ActivityLog from "../models/ActivityLog.js";
 import Notification from "../models/Notification.js";
-import bcrypt from "bcryptjs";
+import Follow from "../models/Follow.js";
 import { logActivity } from "../middleware/activityLogger.js";
 import { sendWelcomeEmail, sendEmail } from "../configs/emailService.js";
+
+// Search Users (Public / Auth Optional)
+// GET /api/user/search?q= or /api/users/search?q=
+export const searchUsers = async (req, res) => {
+    try {
+        const { q } = req.query;
+        // Trim whitespace & sanitize
+        const rawQuery = (q || "").trim();
+        if (!rawQuery) {
+            return res.json([]);
+        }
+
+        // Escape regex special characters to prevent regex injection
+        const escapedQuery = rawQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        // Case-insensitive partial matching regex
+        const searchRegex = new RegExp(escapedQuery, "i");
+
+        let currentUserId = null;
+        
+        // Extract userId if authorization header or cookie is provided
+        let token = req.headers.authorization;
+        if (!token && req.cookies && req.cookies.auth_token) {
+            token = req.cookies.auth_token;
+        } else if (token && token.startsWith("Bearer ")) {
+            token = token.split(" ")[1];
+        }
+
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                currentUserId = decoded.userId;
+            } catch (err) {
+                // Token invalid or expired — treat search as public
+            }
+        }
+
+        // Build filter: search username, name, displayName; exclude admins & current user
+        const filter = {
+            // CRITICAL: Always exclude admin accounts from public search
+            isAdmin: { $ne: true },
+            role: { $nin: ["ADMIN", "SUPER_ADMIN"] },
+            // Only active, non-deleted accounts
+            isDeleted: { $ne: true },
+            isBlocked: { $ne: true },
+            status: { $nin: ["deleted", "blocked"] },
+            $or: [
+                { username: searchRegex },
+                { name: searchRegex },
+                { displayName: searchRegex },
+            ]
+        };
+
+        if (currentUserId) {
+            filter._id = { $ne: currentUserId };
+        }
+
+        // Database query limited to 10 results
+        const users = await User.find(filter)
+            .select("_id name displayName username image followersCount followingCount verified role")
+            .limit(10)
+            .lean();
+
+        // Get following list of current user if authenticated
+        let followingSet = new Set();
+        if (currentUserId) {
+            const follows = await Follow.find({ follower: currentUserId }).select("following").lean();
+            followingSet = new Set(follows.map(f => f.following.toString()));
+        }
+
+        // Format to exact field names matching requirement 3 & frontend
+        const formattedUsers = users.map(u => {
+            const id = u._id.toString();
+            const username = u.username || (u.email ? u.email.split("@")[0] : "user");
+            const displayName = u.name || "User";
+            const profileImage = u.image || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&h=80";
+
+            return {
+                id,
+                _id: id,
+                username,
+                displayName,
+                name: displayName,
+                profileImage,
+                image: profileImage,
+                followersCount: u.followersCount || 0,
+                followingCount: u.followingCount || 0,
+                verified: !!u.verified,
+                isFollowing: currentUserId ? followingSet.has(id) : false
+            };
+        });
+
+        console.log(`[Search API] Query: "${rawQuery}" -> Found ${formattedUsers.length} users`);
+
+        // Standardized response with dual array compatibility
+        res.json(Object.assign(formattedUsers, { success: true, users: formattedUsers }));
+    } catch (error) {
+        console.error("[Search API Error]:", error);
+        res.status(500).json({ success: false, message: error.message, error: error.message });
+    }
+};
+
+// Suggested Authors (Public / Auth Optional)
+// GET /api/user/suggested
+export const getSuggestedAuthors = async (req, res) => {
+    try {
+        let currentUserId = null;
+        let token = req.headers.authorization;
+        if (!token && req.cookies && req.cookies.auth_token) {
+            token = req.cookies.auth_token;
+        } else if (token && token.startsWith("Bearer ")) {
+            token = token.split(" ")[1];
+        }
+
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                currentUserId = decoded.userId;
+            } catch (err) {}
+        }
+
+        const filter = {
+            isAdmin: { $ne: true },
+            role: { $nin: ["ADMIN", "SUPER_ADMIN"] },
+            isDeleted: { $ne: true },
+            isBlocked: { $ne: true }
+        };
+
+        if (currentUserId) {
+            filter._id = { $ne: currentUserId };
+        }
+
+        const users = await User.find(filter)
+            .select("_id name displayName username image bio followersCount followingCount verified role")
+            .limit(10)
+            .lean();
+
+        let followingSet = new Set();
+        if (currentUserId) {
+            const follows = await Follow.find({ follower: currentUserId }).select("following").lean();
+            followingSet = new Set(follows.map(f => f.following.toString()));
+        }
+
+        const formattedUsers = users.map(u => {
+            const id = u._id.toString();
+            const username = u.username || (u.email ? u.email.split("@")[0] : "author");
+            const displayName = u.name || "Author";
+            const profileImage = u.image || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&h=80";
+
+            return {
+                id,
+                _id: id,
+                username,
+                displayName,
+                name: displayName,
+                profileImage,
+                image: profileImage,
+                bio: u.bio || "Content Creator & Author",
+                followersCount: u.followersCount || 0,
+                followingCount: u.followingCount || 0,
+                verified: !!u.verified,
+                isFollowing: currentUserId ? followingSet.has(id) : false
+            };
+        });
+
+        res.json({
+            success: true,
+            users: formattedUsers
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 
 // Register ( Public Route )
 // POST /api/user/register
@@ -22,7 +195,14 @@ export const register = async (req, res) => {
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        const user = await User.create({ name, email, password: hashedPassword });
+        const user = await User.create({
+            name,
+            displayName: name,
+            email,
+            password: hashedPassword,
+            role: "USER", // Always public user on self-registration
+            isAdmin: false
+        });
         
         // Generate Token
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
@@ -56,6 +236,14 @@ export const login = async (req, res) => {
         const user = await User.findOne({ email });
         if (!user) {
             return res.json({ success: false, message: "User not found" });
+        }
+
+        // CRITICAL: Exclude admin/superadmin accounts from public login endpoint
+        if (user.isAdmin || ["ADMIN", "SUPER_ADMIN"].includes(user.role)) {
+            return res.json({
+                success: false,
+                message: "Admin accounts must log in through the Admin Panel."
+            });
         }
 
         if (!(await bcrypt.compare(password, user.password))) {

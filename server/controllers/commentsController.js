@@ -33,7 +33,25 @@ export const addComment = async (req, res) => {
             link: "/author/list-comment",
         });
 
-        // 3. Send Notification Email to Author
+        // 3. Mention Detection (@username)
+        const mentions = content.match(/@([a-zA-Z0-9_]+)/g);
+        if (mentions) {
+            const User = (await import("../models/User.js")).default;
+            for (const mentionStr of mentions) {
+                const uname = mentionStr.replace("@", "");
+                const mentionedUser = await User.findOne({ username: uname });
+                if (mentionedUser && mentionedUser._id.toString() !== blogData.author._id.toString()) {
+                    await Notification.create({
+                        user: mentionedUser._id,
+                        message: `${name} mentioned you in a comment on "${blogData.title}"`,
+                        type: "mention",
+                        link: `/blog/${blog}`,
+                    });
+                }
+            }
+        }
+
+        // 4. Send Notification Email to Author
         if (blogData.author && blogData.author.email) {
             sendCommentAddedEmail(
                 blogData.author.email,
@@ -44,6 +62,7 @@ export const addComment = async (req, res) => {
                 blog
             ).catch(err => console.error("Error sending comment email notification:", err));
         }
+
 
         res.json({ success: true, message: "Comment added for review" });
     } catch (error) {

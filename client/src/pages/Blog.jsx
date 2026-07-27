@@ -8,9 +8,10 @@ import Loader from "../components/Loader";
 import BlogCard from "../components/BlogCard";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
-
-
-
+import { Trash2 } from "lucide-react";
+import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
+import { Capacitor } from '@capacitor/core';
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
 const Blog = () => {
     const { id } = useParams();
     const { axios, blogs, fetchBlogs, token, user: currentUser } = useAppContext();
@@ -45,6 +46,34 @@ const Blog = () => {
     const [playbackRate, setPlaybackRate] = useState(1);
     const [showAudioPanel, setShowAudioPanel] = useState(false);
     const [audioInstance, setAudioInstance] = useState(null);
+
+    // Delete Modal
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const { navigate } = useAppContext();
+    const authorId = typeof data?.author === "object" ? data?.author?._id : data?.author;
+    const isOwner = currentUser && (currentUser._id === authorId || currentUser.isAdmin || currentUser.role === "ADMIN");
+
+    const handleDeletePost = async () => {
+        setIsDeleting(true);
+        try {
+            const { data: res } = await axios.delete(`/api/blogs/${id}`, {
+                headers: { Authorization: token }
+            });
+            if (res.success) {
+                toast.success("Post deleted successfully!");
+                setIsDeleteModalOpen(false);
+                navigate("/explore");
+            } else {
+                toast.error(res.message || "Failed to delete post");
+            }
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Error deleting post");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     const calculateReadTime = (htmlContent) => {
         if (!htmlContent) return 0;
@@ -135,9 +164,21 @@ const Blog = () => {
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.rate = playbackRate;
             utterance.lang = lang;
+            
+            const voices = window.speechSynthesis.getVoices();
+            // Try exact match, then language-only match
+            let selectedVoice = voices.find(v => v.lang === lang) || 
+                                voices.find(v => v.lang.startsWith(lang.split('-')[0]));
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            }
+            
             utterance.onend = () => setSpeechStatus("Idle");
-            utterance.onerror = () => setSpeechStatus("Idle");
-
+            utterance.onerror = (e) => {
+                console.error("Speech Synthesis Error:", e);
+                setSpeechStatus("Idle");
+            };
+            
             window.speechSynthesis.speak(utterance);
             setSpeechStatus("Speaking");
             setShowAudioPanel(true);
@@ -320,35 +361,40 @@ const Blog = () => {
             if (res.success && res.blog) {
                 setData(res.blog);
                 setHeadings(parseHeadings(res.blog.description));
-                
                 // Record view count
                 if (token) {
-                    await axios.post(`/api/posts/${id}/view`, {}, {
+                    axios.post(`/api/posts/${id}/view`, {}, {
                         headers: { Authorization: token }
-                    });
+                    }).catch(err => console.error("View tracking error:", err));
                 }
 
-                // Check likes and saves
+                // Check likes and saves in parallel
                 if (token && currentUser) {
-                    const { data: likesData } = await axios.get(`/api/posts/${id}/likes`, {
-                        headers: { Authorization: token }
-                    });
-                    if (likesData.success) {
-                        const hasLiked = likesData.likes.some(l => 
-                            (l.user?._id || l.user) === currentUser._id
-                        );
-                        setIsLiked(hasLiked);
-                        setLikesCount(likesData.likes.length);
-                    } else {
-                        setLikesCount(res.blog.likes || 0);
-                    }
+                    try {
+                        const [likesRes, savedRes] = await Promise.all([
+                            axios.get(`/api/posts/${id}/likes`, { headers: { Authorization: token } }),
+                            axios.get(`/api/posts/saved`, { headers: { Authorization: token } })
+                        ]);
 
-                    const { data: savedData } = await axios.get(`/api/posts/saved`, {
-                        headers: { Authorization: token }
-                    });
-                    if (savedData.success) {
-                        const hasSaved = savedData.blogs.some(b => b._id === id);
-                        setIsSaved(hasSaved);
+                        const likesData = likesRes.data;
+                        if (likesData.success) {
+                            const hasLiked = likesData.likes.some(l => 
+                                (l.user?._id || l.user) === currentUser._id
+                            );
+                            setIsLiked(hasLiked);
+                            setLikesCount(likesData.likes.length);
+                        } else {
+                            setLikesCount(res.blog.likes || 0);
+                        }
+
+                        const savedData = savedRes.data;
+                        if (savedData.success) {
+                            const hasSaved = savedData.blogs.some(b => b._id === id);
+                            setIsSaved(hasSaved);
+                        }
+                    } catch (err) {
+                        console.error("Error fetching likes or saves", err);
+                        setLikesCount(res.blog.likes || 0);
                     }
                 } else {
                     setLikesCount(res.blog.likes || 0);
@@ -438,7 +484,7 @@ const Blog = () => {
         .slice(0, 3);
 
     return data ? (
-        <div className="relative overflow-hidden min-h-screen bg-[rgb(219,218,218)] dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300">
+        <div className="relative overflow-hidden min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300">
             {/* Progress bar */}
             <div className="fixed top-0 left-0 w-full h-1 bg-slate-200 dark:bg-slate-800 z-50">
                 <div 
@@ -485,14 +531,14 @@ const Blog = () => {
                     
                     <button
                         onClick={handleLike}
-                        className="inline-flex items-center gap-1.5 py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white hover:bg-[rgb(219,218,218)] dark:bg-slate-900 text-red-500 font-bold transition-all duration-200 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+                        className="inline-flex items-center gap-1.5 py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white hover:bg-slate-100 dark:hover:bg-slate-800 dark:bg-slate-900 text-red-500 font-bold transition-all duration-200 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
                     >
                         {isLiked ? "❤️" : "🤍"} {likesCount}
                     </button>
 
                     <button
                         onClick={handleSave}
-                        className="inline-flex items-center gap-1.5 py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white hover:bg-[rgb(219,218,218)] dark:bg-slate-900 text-yellow-500 font-bold transition-all duration-200 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+                        className="inline-flex items-center gap-1.5 py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white hover:bg-slate-100 dark:hover:bg-slate-800 dark:bg-slate-900 text-yellow-500 font-bold transition-all duration-200 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
                     >
                         {isSaved ? "★ Saved" : "☆ Save"}
                     </button>
@@ -509,22 +555,32 @@ const Blog = () => {
                                 setShowAudioPanel(true);
                             }
                         }}
-                        className="inline-flex items-center gap-2 py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white hover:bg-[rgb(219,218,218)] dark:bg-slate-900 text-violet-600 dark:text-violet-400 font-bold transition-all duration-200 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+                        className="inline-flex items-center gap-2 py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white hover:bg-slate-100 dark:hover:bg-slate-800 dark:bg-slate-900 text-violet-600 dark:text-violet-400 font-bold transition-all duration-200 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
                     >
                         🎙️ Listen to Blog
                     </button>
 
                     <button
                         onClick={handleGenerateSummary}
-                        className="inline-flex items-center gap-2 py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white hover:bg-[rgb(219,218,218)] dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 font-bold transition-all duration-200 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+                        className="inline-flex items-center gap-2 py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white hover:bg-slate-100 dark:hover:bg-slate-800 dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 font-bold transition-all duration-200 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
                     >
                         ✨ AI Summary
                     </button>
 
+                    {isOwner && (
+                        <button
+                            onClick={() => setIsDeleteModalOpen(true)}
+                            className="inline-flex items-center gap-1.5 py-2 px-4 rounded-xl border text-xs border-rose-500/30 bg-zinc-900 hover:bg-rose-500/10 hover:border-rose-500/50 text-rose-400 font-bold transition-all duration-200 cursor-pointer shadow-sm"
+                        >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Delete Story</span>
+                        </button>
+                    )}
+
                     <select
                         value={currentLanguage}
                         onChange={(e) => handleLanguageChange(e.target.value)}
-                        className="inline-flex items-center py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold cursor-pointer hover:bg-[rgb(219,218,218)] dark:hover:bg-slate-800 focus:outline-none transition-all duration-300 shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+                        className="inline-flex items-center py-2 px-4 rounded-xl border text-xs border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none transition-all duration-300 shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
                     >
                         <option value="Original">🌐 Original</option>
                         <option value="Hindi">Hindi (हिंदी)</option>
@@ -695,6 +751,15 @@ const Blog = () => {
                     </div>
                 </div>
             )}
+
+            {/* Delete Confirmation Modal */}
+            <DeleteConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleDeletePost}
+                title={data?.title || "this story"}
+                isDeleting={isDeleting}
+            />
 
             <Footer />
         </div>

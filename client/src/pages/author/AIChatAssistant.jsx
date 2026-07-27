@@ -16,20 +16,63 @@ const AIChatAssistant = () => {
         const sendText = customMsg || message;
         if (!sendText.trim()) return;
 
-        const updatedHistory = [...history, { role: "user", text: sendText }];
-        setHistory(updatedHistory);
+        const newHistory = [...history, { role: "user", text: sendText }];
+        setHistory(newHistory);
         setMessage("");
         setLoading(true);
 
+        const token = localStorage.getItem("token");
+
         try {
-            const { data } = await axios.post("/api/ai/chat", {
-                message: sendText,
-                history: history.map(h => ({ role: h.role, text: h.text }))
+            // Add a temporary model message to append tokens into
+            setHistory([...newHistory, { role: "model", text: "" }]);
+
+            const response = await fetch("/api/ai/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: token || ""
+                },
+                body: JSON.stringify({
+                    message: sendText,
+                    history: newHistory.map(h => ({ role: h.role, text: h.text }))
+                })
             });
-            if (data.success) {
-                setHistory([...updatedHistory, { role: "model", text: data.reply }]);
-            } else {
-                toast.error(data.message);
+
+            if (!response.body) throw new Error("ReadableStream not yet supported in this browser.");
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let aiText = "";
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                const chunkStr = decoder.decode(value, { stream: true });
+                const lines = chunkStr.split('\n');
+                
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const dataStr = line.slice(6);
+                        if (dataStr === '[DONE]') break;
+                        
+                        try {
+                            const parsed = JSON.parse(dataStr);
+                            if (parsed.error) {
+                                toast.error(parsed.error);
+                            } else if (parsed.chunk) {
+                                aiText += parsed.chunk;
+                                // Update the last message in history with the new text
+                                setHistory(prev => {
+                                    const updated = [...prev];
+                                    updated[updated.length - 1].text = aiText;
+                                    return updated;
+                                });
+                            }
+                        } catch(e) {}
+                    }
+                }
             }
         } catch (error) {
             toast.error(error.message);

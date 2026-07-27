@@ -94,7 +94,7 @@ export const getFollowers = async (req, res) => {
       .populate({
         path: "follower",
         match: matchQuery,
-        select: "name username image followersCount followingCount"
+        select: "name username image bio followersCount followingCount"
       })
       .sort({ createdAt: -1 });
 
@@ -104,15 +104,28 @@ export const getFollowers = async (req, res) => {
     // Dynamic indicators: isFollowing, isFollower, isMutual
     const paginatedList = [];
     const end = Math.min(skip + limit, list.length);
+    const usersInPage = list.slice(skip, end);
 
-    for (let i = skip; i < end; i++) {
-      const u = list[i];
+    let followingSet = new Set();
+    let followersSet = new Set();
+    if (currentUserId && usersInPage.length > 0) {
+      const userIds = usersInPage.map(u => u._id);
+      const [followingCurrent, followersCurrent] = await Promise.all([
+        Follow.find({ follower: currentUserId, following: { $in: userIds } }).lean(),
+        Follow.find({ following: currentUserId, follower: { $in: userIds } }).lean()
+      ]);
+      followingSet = new Set(followingCurrent.map(f => f.following.toString()));
+      followersSet = new Set(followersCurrent.map(f => f.follower.toString()));
+    }
+
+    for (let i = 0; i < usersInPage.length; i++) {
+      const u = usersInPage[i];
       let isFollowing = false;
       let isFollower = false;
 
       if (currentUserId) {
-        isFollowing = !!(await Follow.findOne({ follower: currentUserId, following: u._id }));
-        isFollower = !!(await Follow.findOne({ follower: u._id, following: currentUserId }));
+        isFollowing = followingSet.has(u._id.toString());
+        isFollower = followersSet.has(u._id.toString());
       }
 
       paginatedList.push({
@@ -120,6 +133,7 @@ export const getFollowers = async (req, res) => {
         name: u.name,
         username: u.username || `user_${u._id.toString().slice(-6)}`,
         image: u.image,
+        bio: u.bio || "",
         isFollowing,
         isFollower,
         isMutual: isFollowing && isFollower,
@@ -162,7 +176,7 @@ export const getFollowing = async (req, res) => {
       .populate({
         path: "following",
         match: matchQuery,
-        select: "name username image followersCount followingCount"
+        select: "name username image bio followersCount followingCount"
       })
       .sort({ createdAt: -1 });
 
@@ -170,15 +184,28 @@ export const getFollowing = async (req, res) => {
 
     const paginatedList = [];
     const end = Math.min(skip + limit, list.length);
+    const usersInPage = list.slice(skip, end);
 
-    for (let i = skip; i < end; i++) {
-      const u = list[i];
+    let followingSet = new Set();
+    let followersSet = new Set();
+    if (currentUserId && usersInPage.length > 0) {
+      const userIds = usersInPage.map(u => u._id);
+      const [followingCurrent, followersCurrent] = await Promise.all([
+        Follow.find({ follower: currentUserId, following: { $in: userIds } }).lean(),
+        Follow.find({ following: currentUserId, follower: { $in: userIds } }).lean()
+      ]);
+      followingSet = new Set(followingCurrent.map(f => f.following.toString()));
+      followersSet = new Set(followersCurrent.map(f => f.follower.toString()));
+    }
+
+    for (let i = 0; i < usersInPage.length; i++) {
+      const u = usersInPage[i];
       let isFollowing = false;
       let isFollower = false;
 
       if (currentUserId) {
-        isFollowing = !!(await Follow.findOne({ follower: currentUserId, following: u._id }));
-        isFollower = !!(await Follow.findOne({ follower: u._id, following: currentUserId }));
+        isFollowing = followingSet.has(u._id.toString());
+        isFollower = followersSet.has(u._id.toString());
       }
 
       paginatedList.push({
@@ -186,6 +213,7 @@ export const getFollowing = async (req, res) => {
         name: u.name,
         username: u.username || `user_${u._id.toString().slice(-6)}`,
         image: u.image,
+        bio: u.bio || "",
         isFollowing,
         isFollower,
         isMutual: isFollowing && isFollower,

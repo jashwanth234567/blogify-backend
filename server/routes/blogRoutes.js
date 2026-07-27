@@ -13,6 +13,7 @@ blogRouter.post("/generate", protect, generateBlog);
 blogRouter.get("/all", getAllPublishedBlogs);
 blogRouter.get("/published/:blogId", getPublishedBlogById);
 blogRouter.delete("/delete/:blogId", protect, deleteBlogById);
+blogRouter.delete("/:id", protect, deleteBlogById);
 blogRouter.put("/toggle-publish/:blogId", protect, togglePublish);
 
 // Stats routes

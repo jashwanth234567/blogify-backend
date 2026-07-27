@@ -1,65 +1,46 @@
+// server/configs/db.js – Try Atlas, fallback to in‑memory DB
 import mongoose from "mongoose";
-
-const MAX_RETRIES = 3;
-const RETRY_DELAY_MS = 3000;
-
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+import { autoSeedDatabase } from "../utils/autoSeed.js";
 
 const connectDB = async () => {
-  const uri = process.env.MONGODB_URI || process.env.MONGODB_URL; // Support both variable names for Render compatibility
+  const defaultAtlasUri = "mongodb+srv://blogify:Blogify12345@cluster0.u9ngkvc.mongodb.net/blogdb?retryWrites=true&w=majority&appName=Cluster0";
+  const primaryUri = process.env.MONGODB_URI || process.env.MONGODB_URL || defaultAtlasUri;
 
-  // Guard: ensure the env var is actually set
-  if (!uri) {
-    console.error(`🚫  MongoDB connection string environment variable is not set! Expected MONGODB_URI or MONGODB_URL.`);
-    console.error("    → Add it in your Render dashboard under Environment Variables.");
-    process.exit(1);
+  // 1️⃣ Try Primary Atlas URI
+  try {
+    console.log("Connecting to MongoDB Atlas...");
+    await mongoose.connect(primaryUri, { serverSelectionTimeoutMS: 8000 });
+    console.log("✅ Database Connected (MongoDB Atlas)");
+    await autoSeedDatabase();
+    return;
+  } catch (err) {
+    console.warn(`⚠️ Atlas primary connection failed: ${err.message}`);
   }
 
-  // ── Try MongoDB Atlas ──────────────────────────────────────────────────
-  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+  // 2️⃣ Try Default Atlas URI if primary was different
+  if (primaryUri !== defaultAtlasUri) {
     try {
-      await mongoose.connect(uri, {
-        serverSelectionTimeoutMS: 10000,
-      });
-      console.log("✅ Database Connected (MongoDB Atlas)");
-      mongoose.connection.on("disconnected", () =>
-        console.warn("⚠️  MongoDB disconnected. Reconnecting...")
-      );
-      mongoose.connection.on("error", (err) =>
-        console.error("❌ MongoDB error:", err.message)
-      );
-      return; // success – stop here
-    } catch (error) {
-      console.error(
-        `❌ Atlas connection attempt ${attempt}/${MAX_RETRIES} failed: ${error.message}`
-      );
-      if (attempt < MAX_RETRIES) {
-        console.log(`   Retrying in ${RETRY_DELAY_MS / 1000}s...`);
-        await sleep(RETRY_DELAY_MS);
-      }
+      console.log("Retrying with default Atlas URI...");
+      await mongoose.connect(defaultAtlasUri, { serverSelectionTimeoutMS: 8000 });
+      console.log("✅ Database Connected (Default MongoDB Atlas)");
+      await autoSeedDatabase();
+      return;
+    } catch (err) {
+      console.warn(`⚠️ Default Atlas connection failed: ${err.message}`);
     }
   }
 
-  // ── All retries failed ────────────────────────────────────────────────
-  console.error("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.error("🚫  Could not connect to MongoDB Atlas.");
-  console.error("   Checklist:");
-  console.error("   1. Is MONGODB_URI set correctly in your Render env vars?");
-  console.error("   2. Is 0.0.0.0/0 whitelisted in MongoDB Atlas Network Access?");
-  console.error("   3. Is the Atlas database user password correct in the URI?");
-  console.error("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-  // Attempt fallback to a local MongoDB instance
-  const localUri = process.env.LOCAL_MONGODB_URI || "mongodb://127.0.0.1:27017/blogify";
+  // 3️⃣ Fail‑safe in‑memory DB (always works as last resort)
   try {
-    await mongoose.connect(localUri, { serverSelectionTimeoutMS: 5000 });
-    console.log("✅ Database Connected (Local fallback)");
-    mongoose.connection.on("disconnected", () =>
-      console.warn("⚠️  MongoDB disconnected. Reconnecting..."));
-    mongoose.connection.on("error", (err) =>
-      console.error("❌ MongoDB error (local):", err.message));
-    return; // success – fallback connection established
-  } catch (fallbackError) {
-    console.error(`❌ Local MongoDB fallback failed: ${fallbackError.message}`);
+    console.warn("⏳ Falling back to in‑memory MongoDB (MongoMemoryServer)...");
+    const { MongoMemoryServer } = await import("mongodb-memory-server");
+    const mongoServer = await MongoMemoryServer.create();
+    const memUri = mongoServer.getUri();
+    await mongoose.connect(memUri);
+    console.log("✅ Database Connected (Fail‑Safe In‑Memory DB)");
+    await autoSeedDatabase();
+  } catch (memErr) {
+    console.error("❌ Unable to connect to any database:", memErr.message);
     process.exit(1);
   }
 };

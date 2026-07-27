@@ -27,11 +27,20 @@ const Login = () => {
                 axios.defaults.headers.common["Authorization"] = data.token;
                 toast.success("Logged in successfully!");
                 navigate("/"); // Navigate to homescreen
+            } else if (data.requireOtp) {
+                toast.info(data.message || "OTP verification required to complete login.");
+                navigate("/verify-otp", { state: { email: data.email || identifier } });
             } else {
                 toast.error(data.message || "Invalid credentials");
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || error.message);
+            const errData = error.response?.data;
+            if (errData && errData.requireOtp) {
+                toast.info(errData.message || "OTP verification required to complete login.");
+                navigate("/verify-otp", { state: { email: errData.email || identifier } });
+            } else {
+                toast.error(errData?.message || error.message);
+            }
         } finally {
             setLoading(false);
         }

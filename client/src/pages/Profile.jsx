@@ -56,9 +56,7 @@ const Profile = () => {
         setLoading(false);
         return;
       }
-      const { data } = await axios.get(`/api/profile/${target}`, {
-        headers: { Authorization: token },
-      });
+      const { data } = await axios.get(`/api/profile/${target}`);
       if (data.success) {
         setProfile(data.profile);
         // Pre-fill edit fields
@@ -73,7 +71,7 @@ const Profile = () => {
         setEditFollowsNotify(data.profile.notificationSettings?.follows !== false);
         setEditCommentsNotify(data.profile.notificationSettings?.comments !== false);
       } else {
-        toast.error(data.message);
+        toast.error(data.message || "Profile not found");
       }
     } catch (error) {
       toast.error("Failed to load profile.");
@@ -83,10 +81,14 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    if (token || paramUsername) {
+    // Always load if there's a username param in the URL (public profile)
+    // OR if the user is logged in and visiting /profile (own profile)
+    if (paramUsername || currentUser) {
       getProfileData();
+    } else {
+      setLoading(false);
     }
-  }, [paramUsername, token, currentUser]);
+  }, [paramUsername, token]);
 
   // Handle Follow/Unfollow toggles
   const handleFollowToggle = async () => {
@@ -150,9 +152,10 @@ const Profile = () => {
     try {
       const pageToFetch = reset ? 1 : followersPage;
       const targetSearch = reset ? "" : followersSearch;
+      const config = token ? { headers: { Authorization: token } } : {};
       const { data } = await axios.get(
-        `/api/users/${profile._id}/followers?page=${pageToFetch}&limit=10&search=${targetSearch}`,
-        { headers: { Authorization: token } }
+        `/api/users/${profile._id}/followers?page=${pageToFetch}&limit=20&search=${targetSearch}`,
+        config
       );
       if (data.success) {
         if (reset) {
@@ -174,9 +177,10 @@ const Profile = () => {
     try {
       const pageToFetch = reset ? 1 : followingPage;
       const targetSearch = reset ? "" : followingSearch;
+      const config = token ? { headers: { Authorization: token } } : {};
       const { data } = await axios.get(
-        `/api/users/${profile._id}/following?page=${pageToFetch}&limit=10&search=${targetSearch}`,
-        { headers: { Authorization: token } }
+        `/api/users/${profile._id}/following?page=${pageToFetch}&limit=20&search=${targetSearch}`,
+        config
       );
       if (data.success) {
         if (reset) {
@@ -389,9 +393,15 @@ const Profile = () => {
     return (
       <>
         <Navbar />
-        <div className="text-center py-20">
-          <h2 className="text-2xl font-bold mb-2 text-slate-800 dark:text-white">Profile Not Found</h2>
-          <p className="text-slate-500 dark:text-slate-400">The user you are looking for does not exist or has set their profile to private.</p>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+          <div className="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-5xl mb-6 shadow-inner">
+            🔍
+          </div>
+          <h2 className="text-2xl font-extrabold text-slate-800 dark:text-white mb-2">Profile Not Found</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm leading-relaxed">
+            The user you are looking for doesn't exist, or their profile is set to private.
+          </p>
+          <a href="/" className="mt-6 px-6 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all">← Go Home</a>
         </div>
         <Footer />
       </>
@@ -544,7 +554,7 @@ const Profile = () => {
                 : "border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-700"
             }`}
           >
-            Posts
+            Posts ({profile.stats.postsCount})
           </button>
           <button
             onClick={() => setActiveTab("liked")}
@@ -580,7 +590,20 @@ const Profile = () => {
               </button>
             </>
           )}
+          <button
+            onClick={() => setShowFollowersModal(true)}
+            className="py-3 text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-700 cursor-pointer transition-all"
+          >
+            Followers ({profile.stats.followersCount})
+          </button>
+          <button
+            onClick={() => setShowFollowingModal(true)}
+            className="py-3 text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-700 cursor-pointer transition-all"
+          >
+            Following ({profile.stats.followingCount})
+          </button>
         </div>
+
 
         {/* Tab Content: Grid Layout */}
         <div className="px-4 sm:px-8">
@@ -802,43 +825,76 @@ const Profile = () => {
         </div>
       )}
 
-      {/* Followers Modal */}
+      {/* Followers Modal - Instagram Style */}
       {showFollowersModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md shadow-2xl p-6 max-h-[80vh] flex flex-col">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold">Followers</h3>
-              <button onClick={() => setShowFollowersModal(false)} className="text-slate-400 text-xl font-bold cursor-pointer">×</button>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setShowFollowersModal(false)}>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-t-3xl sm:rounded-3xl w-full sm:max-w-md shadow-2xl max-h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
+              <div>
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">Followers</h3>
+                <p className="text-xs text-slate-400">{profile.stats.followersCount} people follow {profile.name.split(' ')[0]}</p>
+              </div>
+              <button onClick={() => setShowFollowersModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 text-lg font-bold cursor-pointer transition-colors">×</button>
             </div>
             
-            <input
-              type="text"
-              placeholder="Search followers..."
-              value={followersSearch}
-              onChange={e => setFollowersSearch(e.target.value)}
-              className="w-full px-4 py-2 rounded-xl border border-slate-150 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 mb-4 text-sm focus:ring-2 focus:ring-violet-500 outline-none"
-            />
+            {/* Search */}
+            <div className="px-4 pt-3 pb-2 flex-shrink-0">
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+                <input
+                  type="text"
+                  placeholder="Search followers..."
+                  value={followersSearch}
+                  onChange={e => setFollowersSearch(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-sm focus:ring-2 focus:ring-violet-500 outline-none transition-all"
+                />
+              </div>
+            </div>
 
-            <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+            {/* List */}
+            <div
+              className="flex-1 overflow-y-auto px-4 pb-6 space-y-1"
+              onScroll={(e) => {
+                const { scrollTop, scrollHeight, clientHeight } = e.target;
+                if (scrollHeight - scrollTop <= clientHeight + 20 && hasMoreFollowers) {
+                  fetchFollowers(false);
+                }
+              }}
+            >
               {followersList.length === 0 ? (
-                <p className="text-center text-slate-400 py-8 text-sm">No followers found</p>
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div className="text-5xl mb-4">👥</div>
+                  <p className="text-slate-500 dark:text-slate-400 font-semibold">No followers yet</p>
+                  <p className="text-slate-400 text-xs mt-1">When someone follows {profile.name.split(' ')[0]}, they'll show up here.</p>
+                </div>
               ) : (
                 followersList.map(u => (
-                  <div key={u._id} className="flex items-center justify-between gap-3">
-                    <a href={`/profile/${u.username}`} className="flex items-center gap-3">
-                      <img src={u.image || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&h=80"} alt={u.name} className="w-10 h-10 rounded-full object-cover bg-slate-100" />
-                      <div>
-                        <p className="text-sm font-bold leading-tight">{u.name}</p>
-                        <p className="text-xs text-slate-450">@{u.username}</p>
+                  <div key={u._id} className="flex items-center justify-between gap-3 px-2 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/40 rounded-2xl transition-colors group">
+                    <a href={`/profile/${u.username}`} className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="relative flex-shrink-0">
+                        <img 
+                          src={u.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=7c3aed&color=fff&size=80`} 
+                          alt={u.name} 
+                          className="w-12 h-12 rounded-full object-cover ring-2 ring-white dark:ring-slate-800 shadow-sm" 
+                        />
+                        {u.verified && (
+                          <span className="absolute bottom-0 right-0 bg-blue-500 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center ring-1 ring-white">✓</span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold leading-tight text-slate-900 dark:text-slate-100 truncate group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">{u.name}</p>
+                        <p className="text-xs text-slate-400 truncate">@{u.username}</p>
+                        {u.bio && <p className="text-[11px] text-slate-500 dark:text-slate-500 line-clamp-1 mt-0.5">{u.bio}</p>}
                       </div>
                     </a>
                     {currentUser && currentUser._id !== u._id && (
                       <button
                         onClick={() => toggleFollowUserInList(u, "followers")}
-                        className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex-shrink-0 ${
                           u.isFollowing
-                            ? "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                            : "bg-violet-600 hover:bg-violet-750 text-white"
+                            ? "bg-slate-100 hover:bg-red-50 hover:text-red-600 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-red-200 border border-slate-200 dark:border-slate-700"
+                            : "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm hover:shadow-violet-500/30 hover:shadow-md"
                         }`}
                       >
                         {u.isFollowing ? "Following" : "Follow"}
@@ -847,51 +903,84 @@ const Profile = () => {
                   </div>
                 ))
               )}
-              {hasMoreFollowers && (
-                <button onClick={() => fetchFollowers(false)} className="w-full text-center py-2 text-xs font-semibold text-violet-600 hover:underline">Load More</button>
+              {hasMoreFollowers && followersList.length > 0 && (
+                <button onClick={() => fetchFollowers(false)} className="w-full text-center py-3 text-xs font-semibold text-violet-600 hover:underline rounded-xl">Load More</button>
               )}
             </div>
           </div>
         </div>
       )}
 
-      {/* Following Modal */}
+      {/* Following Modal - Instagram Style */}
       {showFollowingModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md shadow-2xl p-6 max-h-[80vh] flex flex-col">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold">Following</h3>
-              <button onClick={() => setShowFollowingModal(false)} className="text-slate-400 text-xl font-bold cursor-pointer">×</button>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setShowFollowingModal(false)}>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-t-3xl sm:rounded-3xl w-full sm:max-w-md shadow-2xl max-h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
+              <div>
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">Following</h3>
+                <p className="text-xs text-slate-400">{profile.name.split(' ')[0]} follows {profile.stats.followingCount} people</p>
+              </div>
+              <button onClick={() => setShowFollowingModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 text-lg font-bold cursor-pointer transition-colors">×</button>
             </div>
 
-            <input
-              type="text"
-              placeholder="Search following..."
-              value={followingSearch}
-              onChange={e => setFollowingSearch(e.target.value)}
-              className="w-full px-4 py-2 rounded-xl border border-slate-150 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 mb-4 text-sm focus:ring-2 focus:ring-violet-500 outline-none"
-            />
+            {/* Search */}
+            <div className="px-4 pt-3 pb-2 flex-shrink-0">
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+                <input
+                  type="text"
+                  placeholder="Search following..."
+                  value={followingSearch}
+                  onChange={e => setFollowingSearch(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-sm focus:ring-2 focus:ring-violet-500 outline-none transition-all"
+                />
+              </div>
+            </div>
 
-            <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+            {/* List */}
+            <div
+              className="flex-1 overflow-y-auto px-4 pb-6 space-y-1"
+              onScroll={(e) => {
+                const { scrollTop, scrollHeight, clientHeight } = e.target;
+                if (scrollHeight - scrollTop <= clientHeight + 20 && hasMoreFollowing) {
+                  fetchFollowing(false);
+                }
+              }}
+            >
               {followingList.length === 0 ? (
-                <p className="text-center text-slate-400 py-8 text-sm">Not following anyone yet</p>
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div className="text-5xl mb-4">🌟</div>
+                  <p className="text-slate-500 dark:text-slate-400 font-semibold">Not following anyone yet</p>
+                  <p className="text-slate-400 text-xs mt-1">When {profile.name.split(' ')[0]} follows someone, they'll show up here.</p>
+                </div>
               ) : (
                 followingList.map(u => (
-                  <div key={u._id} className="flex items-center justify-between gap-3">
-                    <a href={`/profile/${u.username}`} className="flex items-center gap-3">
-                      <img src={u.image || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&h=80"} alt={u.name} className="w-10 h-10 rounded-full object-cover bg-slate-100" />
-                      <div>
-                        <p className="text-sm font-bold leading-tight">{u.name}</p>
-                        <p className="text-xs text-slate-450">@{u.username}</p>
+                  <div key={u._id} className="flex items-center justify-between gap-3 px-2 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/40 rounded-2xl transition-colors group">
+                    <a href={`/profile/${u.username}`} className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="relative flex-shrink-0">
+                        <img 
+                          src={u.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=7c3aed&color=fff&size=80`} 
+                          alt={u.name} 
+                          className="w-12 h-12 rounded-full object-cover ring-2 ring-white dark:ring-slate-800 shadow-sm" 
+                        />
+                        {u.verified && (
+                          <span className="absolute bottom-0 right-0 bg-blue-500 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center ring-1 ring-white">✓</span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold leading-tight text-slate-900 dark:text-slate-100 truncate group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">{u.name}</p>
+                        <p className="text-xs text-slate-400 truncate">@{u.username}</p>
+                        {u.bio && <p className="text-[11px] text-slate-500 dark:text-slate-500 line-clamp-1 mt-0.5">{u.bio}</p>}
                       </div>
                     </a>
                     {currentUser && currentUser._id !== u._id && (
                       <button
                         onClick={() => toggleFollowUserInList(u, "following")}
-                        className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex-shrink-0 ${
                           u.isFollowing
-                            ? "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                            : "bg-violet-600 hover:bg-violet-750 text-white"
+                            ? "bg-slate-100 hover:bg-red-50 hover:text-red-600 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-red-200 border border-slate-200 dark:border-slate-700"
+                            : "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm hover:shadow-violet-500/30 hover:shadow-md"
                         }`}
                       >
                         {u.isFollowing ? "Following" : "Follow"}
@@ -900,13 +989,14 @@ const Profile = () => {
                   </div>
                 ))
               )}
-              {hasMoreFollowing && (
-                <button onClick={() => fetchFollowing(false)} className="w-full text-center py-2 text-xs font-semibold text-violet-600 hover:underline">Load More</button>
+              {hasMoreFollowing && followingList.length > 0 && (
+                <button onClick={() => fetchFollowing(false)} className="w-full text-center py-3 text-xs font-semibold text-violet-600 hover:underline rounded-xl">Load More</button>
               )}
             </div>
           </div>
         </div>
       )}
+
 
       <Footer />
     </div>

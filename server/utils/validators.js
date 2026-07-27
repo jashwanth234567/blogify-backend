@@ -2,7 +2,6 @@ import { body } from 'express-validator';
 
 export const registerValidator = [
   body('name').trim().notEmpty().withMessage('Full Name is required'),
-  body('username').trim().notEmpty().withMessage('Username is required').isAlphanumeric().withMessage('Username must be alphanumeric'),
   body('email').trim().isEmail().withMessage('Valid email is required'),
   body('password')
     .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
