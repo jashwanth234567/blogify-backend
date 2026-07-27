@@ -20,6 +20,8 @@ const Explore = () => {
   const [suggestedUsers, setSuggestedUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [showAllAuthors, setShowAllAuthors] = useState(false);
+
   // Fetch category blogs & trending blogs & suggested authors
   const fetchExploreData = async () => {
     try {
@@ -38,7 +40,7 @@ const Explore = () => {
       }
 
       const usersList = userRes.data?.users || (Array.isArray(userRes.data) ? userRes.data : []);
-      setSuggestedUsers(usersList.filter(u => u._id !== currentUser?._id && u.id !== currentUser?._id).slice(0, 5));
+      setSuggestedUsers(usersList.filter(u => u._id !== currentUser?._id && u.id !== currentUser?._id));
     } catch (error) {
       console.error("Error loading explore page:", error);
     } finally {
@@ -162,7 +164,12 @@ const Explore = () => {
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
               <h3 className="text-base font-extrabold text-slate-900 dark:text-white mb-4 flex items-center justify-between">
                 <span>Suggested Authors</span>
-                <span className="text-xs font-bold text-violet-600 dark:text-violet-400 cursor-pointer hover:underline">View All</span>
+                <button
+                  onClick={() => setShowAllAuthors(prev => !prev)}
+                  className="text-xs font-bold text-violet-600 dark:text-violet-400 cursor-pointer hover:underline border-none bg-transparent"
+                >
+                  {showAllAuthors ? "Show Less" : "View All"}
+                </button>
               </h3>
               <div className="space-y-4">
                 {loading ? (
@@ -170,7 +177,7 @@ const Explore = () => {
                 ) : suggestedUsers.length === 0 ? (
                   <p className="text-xs text-slate-400 text-center py-4">No suggestions available</p>
                 ) : (
-                  suggestedUsers.map(u => (
+                  (showAllAuthors ? suggestedUsers : suggestedUsers.slice(0, 5)).map(u => (
                     <div key={u._id || u.id} className="flex items-center justify-between gap-3">
                       <a href={`/profile/${u.username || u._id}`} className="flex items-center gap-3 min-w-0 group">
                         <img

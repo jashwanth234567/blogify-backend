@@ -2,6 +2,7 @@ import { aiProvider } from "../services/aiProvider.js";
 import { translationService } from "../services/translationService.js";
 import { nlpService } from "../services/nlpService.js";
 import AiHistory from "../models/AiHistory.js";
+import * as googleTTS from "google-tts-api";
 
 // AI Generate Blog Content
 // POST /api/blog/generate
@@ -221,20 +222,33 @@ export const chatAssistant = async (req, res) => {
     res.end();
     console.log("Response Sent (Stream).");
 
-    // Save full reply to AI History
-    if (userId && fullReply) {
-      AiHistory.create({
-        user: userId,
-        prompt: message,
-        generatedContent: fullReply,
-        type: "chat",
-      }).catch(err => console.error("History save error:", err.message));
+// AI Audio Text-To-Speech Generator
+// POST /api/ai/tts
+export const generateAudioTTS = async (req, res) => {
+  try {
+    const { text, lang = "en" } = req.body;
+    if (!text) {
+      return res.json({ success: false, message: "Text is required for audio speech" });
     }
-
-  } catch (error) {
-    console.error("AI Chat Controller Error:", error);
-    res.write(`data: ${JSON.stringify({ chunk: "Sorry, the AI Assistant encountered an error." })}\n\n`);
-    res.write(`data: [DONE]\n\n`);
-    res.end();
+    const cleanText = text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300);
+    const langMap = {
+      "Hindi": "hi",
+      "Telugu": "te",
+      "Tamil": "ta",
+      "Spanish": "es",
+      "French": "fr",
+      "Original": "en"
+    };
+    const targetLang = langMap[lang] || lang || "en";
+    const base64Audio = await googleTTS.getAudioBase64(cleanText, {
+      lang: targetLang,
+      slow: false,
+      host: "https://translate.google.com",
+    });
+    const audioUrl = `data:audio/mp3;base64,${base64Audio}`;
+    res.json({ success: true, audioUrl });
+  } catch (err) {
+    console.error("TTS Generation error:", err.message);
+    res.json({ success: false, message: err.message });
   }
 };

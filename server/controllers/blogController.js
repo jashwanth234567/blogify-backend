@@ -146,13 +146,10 @@ export const getAllPublishedBlogs = async (req, res) => {
         const admins = await User.find({ $or: [{ isAdmin: true }, { role: { $in: ["ADMIN", "SUPER_ADMIN"] } }] }).select("_id").lean();
         const adminIds = admins.map(a => a._id);
 
-        let query = { 
-            isPublished: true,
-            author: { $nin: adminIds }
-        };
+        let query = { isPublished: true };
 
         if (category && category !== "All") {
-            query.category = category;
+            query.category = { $regex: new RegExp(`^${category}$`, "i") };
         }
 
         let sortOption = { createdAt: -1 }; // Feature 3: Default ORDER BY created_at DESC
@@ -181,14 +178,24 @@ export const getAllPublishedBlogs = async (req, res) => {
             sortOption = { likes: -1, views: -1, createdAt: -1 };
         }
 
-        const blogs = await Blog.find(query)
+        let blogs = await Blog.find(query)
             .populate("author", "name username image bio")
             .sort(sortOption)
             .skip(skip)
             .limit(parseInt(limit))
             .lean();
 
-        const total = await Blog.countDocuments(query);
+        let total = await Blog.countDocuments(query);
+
+        // Fallback: If no blogs found for specific category, return recent published blogs
+        if (blogs.length === 0 && category && category !== "All") {
+            blogs = await Blog.find({ isPublished: true })
+                .populate("author", "name username image bio")
+                .sort({ createdAt: -1 })
+                .limit(parseInt(limit))
+                .lean();
+            total = blogs.length;
+        }
 
         const responsePayload = {
             success: true,

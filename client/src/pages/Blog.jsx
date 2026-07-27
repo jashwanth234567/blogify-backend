@@ -108,22 +108,34 @@ const Blog = () => {
         return textSource.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
     };
 
-    const playSpeech = async () => {
-        if (translatedContent && translatedContent.audioBase64) {
-            if (audioInstance) {
-                audioInstance.playbackRate = playbackRate;
-                audioInstance.play();
-                setSpeechStatus("Speaking");
-                setShowAudioPanel(true);
-                return;
+    const playBackendAudio = async (text, lang) => {
+        try {
+            setSpeechStatus("Speaking");
+            setShowAudioPanel(true);
+            const { data: res } = await axios.post("/api/ai/tts", { text, lang: currentLanguage });
+            if (res.success && res.audioUrl) {
+                if (audioInstance) audioInstance.pause();
+                const audio = new Audio(res.audioUrl);
+                audio.playbackRate = playbackRate;
+                audio.onended = () => { setSpeechStatus("Idle"); setAudioInstance(null); };
+                audio.onerror = () => { setSpeechStatus("Idle"); setAudioInstance(null); };
+                audio.play().catch(e => console.error("Audio play error:", e));
+                setAudioInstance(audio);
+            } else {
+                toast.error("Audio generation failed.");
+                setSpeechStatus("Idle");
             }
-            
-            const audio = new Audio(translatedContent.audioBase64);
-            audio.playbackRate = playbackRate;
-            audio.onended = () => { setSpeechStatus("Idle"); setAudioInstance(null); };
-            audio.onerror = () => { setSpeechStatus("Idle"); setAudioInstance(null); };
-            audio.play();
-            setAudioInstance(audio);
+        } catch (err) {
+            console.error("Backend TTS error:", err);
+            toast.error("Audio playback error.");
+            setSpeechStatus("Idle");
+        }
+    };
+
+    const playSpeech = async () => {
+        if (audioInstance) {
+            audioInstance.playbackRate = playbackRate;
+            audioInstance.play().catch(() => {});
             setSpeechStatus("Speaking");
             setShowAudioPanel(true);
             return;
@@ -157,31 +169,38 @@ const Blog = () => {
                 setSpeechStatus("Idle");
             } catch (error) {
                 console.error("Capacitor TTS Error", error);
-                setSpeechStatus("Idle");
+                await playBackendAudio(text, lang);
             }
         } else {
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = playbackRate;
-            utterance.lang = lang;
-            
-            const voices = window.speechSynthesis.getVoices();
-            // Try exact match, then language-only match
-            let selectedVoice = voices.find(v => v.lang === lang) || 
-                                voices.find(v => v.lang.startsWith(lang.split('-')[0]));
-            if (selectedVoice) {
-                utterance.voice = selectedVoice;
+            try {
+                if (!('speechSynthesis' in window)) {
+                    await playBackendAudio(text, lang);
+                    return;
+                }
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = playbackRate;
+                utterance.lang = lang;
+                
+                const voices = window.speechSynthesis.getVoices();
+                let selectedVoice = voices.find(v => v.lang === lang) || 
+                                    voices.find(v => v.lang.startsWith(lang.split('-')[0]));
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice;
+                }
+                
+                utterance.onend = () => setSpeechStatus("Idle");
+                utterance.onerror = (e) => {
+                    console.error("Speech Synthesis Error, switching to backend audio:", e);
+                    playBackendAudio(text, lang);
+                };
+                
+                window.speechSynthesis.speak(utterance);
+                setSpeechStatus("Speaking");
+                setShowAudioPanel(true);
+            } catch (err) {
+                await playBackendAudio(text, lang);
             }
-            
-            utterance.onend = () => setSpeechStatus("Idle");
-            utterance.onerror = (e) => {
-                console.error("Speech Synthesis Error:", e);
-                setSpeechStatus("Idle");
-            };
-            
-            window.speechSynthesis.speak(utterance);
-            setSpeechStatus("Speaking");
-            setShowAudioPanel(true);
         }
     };
 
