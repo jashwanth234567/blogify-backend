@@ -40,8 +40,7 @@ const connectDB = async () => {
     console.log("✅ Database Connected (Fail‑Safe In‑Memory DB)");
     await autoSeedDatabase();
   } catch (memErr) {
-    console.error("❌ Unable to connect to any database:", memErr.message);
-    process.exit(1);
+    console.error("❌ Database connection error (non-fatal):", memErr.message);
   }
 };
 

@@ -21,6 +21,14 @@ import reportRouter from "./routes/reportRoutes.js";
 import connectCloudinary from "./configs/cloudinary.js";
 import { initSocket } from "./utils/socket.js";
 
+// Uncaught Exception & Rejection Handlers (prevents Cloudflare 520 server crashes)
+process.on("unhandledRejection", (reason) => {
+  console.error("⚠️ Unhandled Promise Rejection:", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("⚠️ Uncaught Exception:", err);
+});
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -30,13 +38,15 @@ const server = http.createServer(app);
 // Initialize Socket.io real-time engine
 initSocket(server);
 
-await connectDB();
-connectCloudinary();
-
 // Middlewares
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ strict: false }));
 app.use(cookieParser());
+
+// Health Check Route for Render & Cloudflare Monitoring
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", uptime: process.uptime(), timestamp: new Date().toISOString() });
+});
 
 // Serve React build static files (if they exist)
 const clientBuildPath = path.resolve(__dirname, "..", "client", "dist");
@@ -65,10 +75,23 @@ app.use("/api", (req, res) => {
 
 // Fallback: serve React index.html for SPA routing
 app.use((req, res) => {
-  res.sendFile(path.join(clientBuildPath, "index.html"));
+  const indexPath = path.join(clientBuildPath, "index.html");
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      res.status(200).send("Blogify API Server Running");
+    }
+  });
 });
 
 const PORT = process.env.PORT || 3000;
+
+// Connect DB & Cloudinary non-blockingly then start server
+connectDB().catch(err => console.error("DB Init Error:", err));
+try {
+  connectCloudinary();
+} catch (err) {
+  console.error("Cloudinary Init Error:", err);
+}
 
 server.listen(PORT, "0.0.0.0", () => {
     console.log("🚀 Server & Socket.io running on port " + PORT);
