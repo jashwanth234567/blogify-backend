@@ -12,12 +12,12 @@
     ],
     "rewrites": [
       {
-        "source": "/api/:path*",
-        "destination": "https://blogify-backend-1-525g.onrender.com/api/:path*"
+        "source": "/api/(.*)",
+        "destination": "https://blogify-backend-1-525g.onrender.com/api/$1"
       },
       {
         "source": "/(.*)",
-        "destination": "/"
+        "destination": "/index.html"
       }
     ]
 }
