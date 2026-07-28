@@ -2,7 +2,7 @@ import { aiProvider } from "../services/aiProvider.js";
 import { translationService } from "../services/translationService.js";
 import { nlpService } from "../services/nlpService.js";
 import AiHistory from "../models/AiHistory.js";
-import * as googleTTS from "google-tts-api";
+import { getAudioBase64 } from "google-tts-api";
 
 // AI Generate Blog Content
 // POST /api/blog/generate
@@ -221,6 +221,16 @@ export const chatAssistant = async (req, res) => {
     res.write(`data: [DONE]\n\n`);
     res.end();
     console.log("Response Sent (Stream).");
+  } catch (error) {
+    console.error("Chat Assistant Error:", error.message);
+    if (!res.headersSent) {
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+      res.end();
+    }
+  }
+};
 
 // AI Audio Text-To-Speech Generator
 // POST /api/ai/tts
@@ -240,7 +250,7 @@ export const generateAudioTTS = async (req, res) => {
       "Original": "en"
     };
     const targetLang = langMap[lang] || lang || "en";
-    const base64Audio = await googleTTS.getAudioBase64(cleanText, {
+    const base64Audio = await getAudioBase64(cleanText, {
       lang: targetLang,
       slow: false,
       host: "https://translate.google.com",
@@ -251,4 +261,4 @@ export const generateAudioTTS = async (req, res) => {
     console.error("TTS Generation error:", err.message);
     res.json({ success: false, message: err.message });
   }
-};
+};

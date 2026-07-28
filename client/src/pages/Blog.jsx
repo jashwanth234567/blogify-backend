@@ -111,7 +111,7 @@ const Blog = () => {
         try {
             setSpeechStatus("Speaking");
             setShowAudioPanel(true);
-            const backendUrl = import.meta.env.VITE_BASE_URL || "https://blogify-backend1.onrender.com";
+            const backendUrl = import.meta.env.VITE_BASE_URL || "https://blogify-backend-1-525g.onrender.com";
             const { data: res } = await axios.post(`${backendUrl}/api/ai/tts`, { text, lang: currentLanguage });
             if (res.success && res.audioUrl) {
                 if (audioInstance) audioInstance.pause();
@@ -325,7 +325,7 @@ const Blog = () => {
         }
     };
 
-    const getBackendUrl = () => import.meta.env.VITE_BASE_URL || "https://blogify-backend1.onrender.com";
+    const getBackendUrl = () => import.meta.env.VITE_BASE_URL || "https://blogify-backend-1-525g.onrender.com";
 
     const handleLike = async () => {
         if (!token) {

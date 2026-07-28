@@ -35,7 +35,7 @@ const FloatingAIChat = () => {
         setLoading(true);
 
         try {
-            const backendUrl = import.meta.env.VITE_BASE_URL || "https://blogify-backend1.onrender.com";
+            const backendUrl = import.meta.env.VITE_BASE_URL || "https://blogify-backend-1-525g.onrender.com";
             const response = await fetch(`${backendUrl}/api/ai/chat`, {
                 method: "POST",
                 headers: {
