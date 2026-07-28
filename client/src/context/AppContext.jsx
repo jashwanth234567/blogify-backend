@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
-axios.defaults.baseURL = import.meta.env.VITE_BASE_URL || "";
+const envBaseUrl = import.meta.env.VITE_BASE_URL;
+axios.defaults.baseURL = (envBaseUrl && envBaseUrl.trim() !== "") ? envBaseUrl : "https://blogify-backend-1-525g.onrender.com";
 
 // ─── Global Axios Interceptors ───────────────────────────────────────────────
 // Request: auto-inject stored token on every request
