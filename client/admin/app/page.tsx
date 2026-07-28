@@ -8,7 +8,7 @@ export default function AdminDashboard() {
 
   const fetchActivities = async () => {
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://blogify-backend-1-525g.onrender.com';
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://blogify-backend1.onrender.com';
       const res = await fetch(`${API_BASE}/api/admin/activities?search=${search}`, {
         credentials: 'include'
       });

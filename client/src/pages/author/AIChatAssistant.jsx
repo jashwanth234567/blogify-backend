@@ -28,7 +28,7 @@ const AIChatAssistant = () => {
             setHistory([...newHistory, { role: "model", text: "" }]);
 
             const envUrl = import.meta.env.VITE_BASE_URL;
-            const backendUrl = (envUrl && envUrl.trim() !== "") ? envUrl : "https://blogify-backend-1-525g.onrender.com";
+            const backendUrl = (envUrl && envUrl.trim() !== "") ? envUrl : "https://blogify-backend1.onrender.com";
             const response = await fetch(`${backendUrl}/api/ai/chat`, {
                 method: "POST",
                 headers: {
