@@ -93,8 +93,10 @@ try {
   console.error("Cloudinary Init Error:", err);
 }
 
-server.listen(PORT, "0.0.0.0", () => {
-    console.log("🚀 Server & Socket.io running on port " + PORT);
-});
+if (!process.env.VERCEL) {
+  server.listen(PORT, "0.0.0.0", () => {
+      console.log("🚀 Server & Socket.io running on port " + PORT);
+  });
+}
 
 export default app;

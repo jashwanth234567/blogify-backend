@@ -40,7 +40,7 @@ class TranslationService {
       const textChunk = text.length > 2000 ? text.slice(0, 2000) : text;
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 1500); // 1.5s max timeout
+      const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s max timeout
 
       const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${langCode}&dt=t&q=${encodeURIComponent(textChunk)}`;
       const response = await fetch(url, { signal: controller.signal });

@@ -240,7 +240,7 @@ export const generateAudioTTS = async (req, res) => {
     if (!text) {
       return res.json({ success: false, message: "Text is required for audio speech" });
     }
-    const cleanText = text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300);
+    const cleanText = text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 200);
     const langMap = {
       "Hindi": "hi",
       "Telugu": "te",
