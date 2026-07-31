@@ -1,129 +1,69 @@
 {
-  "generated_at": "2026-07-22 15:13:25",
-  "total": 20,
-  "passed": 17,
-  "failed": 3,
+  "generated_at": "2026-07-31 17:25:17",
+  "total": 10,
+  "passed": 10,
+  "failed": 0,
   "error": 0,
   "results": [
     {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_011_register_page_loads",
+      "nodeid": "selenium_tests/test_01_homepage.py::TestHomepage::test_tc_s_001_homepage_loads_successfully",
       "outcome": "passed",
-      "duration": 0.31,
+      "duration": 0.169,
       "longrepr": ""
     },
     {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_012_register_all_fields_present",
+      "nodeid": "selenium_tests/test_01_homepage.py::TestHomepage::test_tc_s_002_hero_section_visible",
       "outcome": "passed",
-      "duration": 0.347,
+      "duration": 0.532,
       "longrepr": ""
     },
     {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_013_register_empty_submit_shows_error",
+      "nodeid": "selenium_tests/test_01_homepage.py::TestHomepage::test_tc_s_003_navbar_visible",
       "outcome": "passed",
-      "duration": 1.378,
+      "duration": 0.476,
       "longrepr": ""
     },
     {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_014_register_weak_password_error",
+      "nodeid": "selenium_tests/test_01_homepage.py::TestHomepage::test_tc_s_004_explore_link_in_navbar",
       "outcome": "passed",
-      "duration": 0.543,
+      "duration": 0.255,
       "longrepr": ""
     },
     {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_015_register_strong_password_shown",
+      "nodeid": "selenium_tests/test_01_homepage.py::TestHomepage::test_tc_s_005_login_button_in_navbar",
       "outcome": "passed",
-      "duration": 0.595,
+      "duration": 0.477,
       "longrepr": ""
     },
     {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_016_register_password_mismatch_error",
+      "nodeid": "selenium_tests/test_01_homepage.py::TestHomepage::test_tc_s_006_homepage_has_blog_section",
       "outcome": "passed",
-      "duration": 1.732,
+      "duration": 0.136,
       "longrepr": ""
     },
     {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_017_register_success_redirects_to_login",
+      "nodeid": "selenium_tests/test_01_homepage.py::TestHomepage::test_tc_s_007_footer_is_displayed",
       "outcome": "passed",
-      "duration": 4.581,
+      "duration": 1.178,
       "longrepr": ""
     },
     {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_018_register_duplicate_email_error",
+      "nodeid": "selenium_tests/test_01_homepage.py::TestHomepage::test_tc_s_008_page_title_is_correct",
       "outcome": "passed",
-      "duration": 4.382,
+      "duration": 0.162,
       "longrepr": ""
     },
     {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_019_login_page_loads",
+      "nodeid": "selenium_tests/test_01_homepage.py::TestHomepage::test_tc_s_009_meta_description_exists",
       "outcome": "passed",
-      "duration": 0.367,
+      "duration": 0.457,
       "longrepr": ""
     },
     {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_020_login_empty_form_blocked",
+      "nodeid": "selenium_tests/test_01_homepage.py::TestHomepage::test_tc_s_010_get_started_button_visible",
       "outcome": "passed",
-      "duration": 1.452,
+      "duration": 0.513,
       "longrepr": ""
-    },
-    {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_021_login_wrong_credentials_error",
-      "outcome": "passed",
-      "duration": 3.765,
-      "longrepr": ""
-    },
-    {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_022_valid_login_redirects",
-      "outcome": "failed",
-      "duration": 33.291,
-      "longrepr": "E   selenium.common.exceptions.TimeoutException: Message:"
-    },
-    {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_023_admin_blocked_on_public_login",
-      "outcome": "passed",
-      "duration": 3.898,
-      "longrepr": ""
-    },
-    {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_024_forgot_password_link_navigates",
-      "outcome": "passed",
-      "duration": 0.468,
-      "longrepr": ""
-    },
-    {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_025_forgot_password_sends_email",
-      "outcome": "passed",
-      "duration": 4.871,
-      "longrepr": ""
-    },
-    {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_026_login_shows_password_toggle",
-      "outcome": "passed",
-      "duration": 1.373,
-      "longrepr": ""
-    },
-    {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_027_register_link_on_login_page",
-      "outcome": "passed",
-      "duration": 0.504,
-      "longrepr": ""
-    },
-    {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_028_session_token_stored_in_localstorage",
-      "outcome": "failed",
-      "duration": 32.395,
-      "longrepr": "E   selenium.common.exceptions.TimeoutException: Message:"
-    },
-    {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_029_logout_clears_localstorage",
-      "outcome": "passed",
-      "duration": 21.757,
-      "longrepr": ""
-    },
-    {
-      "nodeid": "selenium_tests/test_02_auth.py::TestAuth::test_tc_s_030_registered_user_login_flow",
-      "outcome": "failed",
-      "duration": 11.734,
-      "longrepr": "E   AssertionError: E2E register->login flow failed\n    assert ('/login' not in 'http://loca...t:5173/login'\n      \n      '/login' is contained here:\n        http://localhost:5173/login\n      ?                      ++++++ or None is not None)\n     +  where None = execute_script(\"return window.localStorage.getItem('token');\")\n     +    where execute_script = <selenium.webdriver.chrome.webdriver.WebDriver (session=\"daf9883dbe273fa8f45355dbff921c53\")>.execute_script"
     }
   ]
 }

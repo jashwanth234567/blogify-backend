@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
 const envBaseUrl = import.meta.env.VITE_BASE_URL;
-axios.defaults.baseURL = (envBaseUrl && envBaseUrl.trim() !== "") ? envBaseUrl : "";
+axios.defaults.baseURL = (envBaseUrl && envBaseUrl.trim() !== "") ? envBaseUrl : "https://blogify-backend1.onrender.com";
 
 // ─── Global Axios Interceptors ───────────────────────────────────────────────
 // Request: auto-inject stored token on every request
