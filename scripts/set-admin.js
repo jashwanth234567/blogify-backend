@@ -1,3 +1,4 @@
+// Script to grant admin privileges to ADMIN_EMAIL in MongoDB
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import User from '../models/User.js';

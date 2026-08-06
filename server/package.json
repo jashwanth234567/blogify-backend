@@ -1,7 +1,7 @@
 {
   "name": "server",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.1",
+  "description": "Blogify Backend API Server",
   "main": "server.js",
   "type": "module",
   "scripts": {
